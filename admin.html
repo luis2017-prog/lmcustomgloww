@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Administrar catálogo | LM Custom Glow</title>
+    <link rel="icon" href="imagenes/logo-lm.jpg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Montserrat:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --dorado: #b8860b; --dorado-claro: #e7c36a; --oscuro: #0d0b0a; --carbon: #1a1614;
+            --plata: #d9d9d9; --rojo: #e74c3c; --verde: #2e9e5b;
+            --serif: 'Cormorant Garamond', Garamond, Georgia, serif;
+            --sans: 'Montserrat', 'Helvetica Neue', Arial, sans-serif;
+        }
+        * { box-sizing: border-box; }
+        body { margin: 0; font-family: var(--serif); font-size: 1.1rem; background: var(--oscuro); color: #fff; min-height: 100vh; }
+        [hidden] { display: none !important; }
+        header { background: #000; border-bottom: 1px solid var(--dorado); padding: 16px 20px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+        header h1 { margin: 0; font-size: 1.25rem; letter-spacing: 4px; text-transform: uppercase; color: var(--plata); }
+        header h1 span { color: var(--dorado-claro); }
+        .wrap { max-width: 720px; margin: 0 auto; padding: 24px 16px 60px; }
+        .card { background: var(--carbon); border: 1px solid #2c2622; border-radius: 6px; padding: 22px; margin-bottom: 26px; }
+        h2 { margin: 0 0 6px; font-size: 1.6rem; color: var(--dorado-claro); letter-spacing: 2px; text-transform: uppercase; }
+        .sub { margin: 0 0 20px; color: #bbb; font-style: italic; }
+        label { display: block; font-family: var(--sans); font-size: 0.68rem; letter-spacing: 2px; text-transform: uppercase; color: var(--plata); margin: 18px 0 6px; }
+        label small { text-transform: none; letter-spacing: 0; color: #999; font-size: 0.75rem; }
+        input[type=text], input[type=password], textarea, select {
+            width: 100%; padding: 13px 14px; font-size: 1rem; font-family: var(--sans); color: #fff;
+            background: #0d0b0a; border: 1px solid #3a322c; border-radius: 3px;
+        }
+        input:focus, textarea:focus, select:focus { outline: 2px solid var(--dorado); border-color: var(--dorado); }
+        textarea { min-height: 110px; resize: vertical; }
+        .btn {
+            font-family: var(--sans); cursor: pointer; border: 1px solid transparent; border-radius: 3px;
+            padding: 14px 24px; font-size: 0.72rem; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; transition: 0.25s;
+        }
+        .btn-oro { background: var(--dorado); color: #fff; }
+        .btn-oro:hover:not(:disabled) { background: var(--dorado-claro); color: #000; }
+        .btn-borde { background: transparent; border-color: #6b6159; color: #fff; }
+        .btn-borde:hover { border-color: var(--dorado-claro); color: var(--dorado-claro); }
+        .btn-peligro { background: transparent; border-color: #6b3a35; color: #ff8a7d; }
+        .btn-peligro:hover { background: var(--rojo); color: #fff; border-color: var(--rojo); }
+        .btn:disabled { opacity: 0.55; cursor: wait; }
+        .btn-chico { padding: 9px 14px; font-size: 0.62rem; }
+        .fila { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 24px; }
+        .error { color: #ff8a7d; font-family: var(--sans); font-size: 0.85rem; margin: 12px 0 0; min-height: 1.2em; }
+
+        /* fotos */
+        .fotos { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 10px; margin-top: 4px; }
+        .foto { position: relative; aspect-ratio: 1; border: 1px solid #3a322c; border-radius: 3px; overflow: hidden; background: #000; }
+        .foto img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .foto button {
+            position: absolute; top: 4px; right: 4px; width: 28px; height: 28px; border-radius: 50%;
+            border: none; background: rgba(0,0,0,0.8); color: #fff; font-size: 1.2rem; line-height: 1; cursor: pointer; padding: 0 0 2px;
+        }
+        .foto .principal { position: absolute; left: 0; bottom: 0; right: 0; background: rgba(184,134,11,0.9); font-family: var(--sans); font-size: 0.55rem; letter-spacing: 1px; text-align: center; padding: 3px; text-transform: uppercase; }
+        .agregar-foto {
+            aspect-ratio: 1; border: 1px dashed var(--dorado); border-radius: 3px; background: transparent; color: var(--dorado-claro);
+            font-family: var(--sans); font-size: 0.65rem; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
+        }
+        .agregar-foto span { font-size: 1.8rem; line-height: 1; }
+        .agregar-foto:hover { background: rgba(184,134,11,0.12); }
+
+        /* lista */
+        .item { display: flex; gap: 14px; align-items: center; padding: 14px 0; border-top: 1px solid #2c2622; }
+        .item:first-child { border-top: none; }
+        .item img { width: 68px; height: 68px; object-fit: cover; border-radius: 3px; flex-shrink: 0; background: #000; }
+        .item .datos { flex: 1; min-width: 0; }
+        .item .datos strong { display: block; font-size: 1.15rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .item .datos span { font-family: var(--sans); font-size: 0.72rem; color: #aaa; letter-spacing: 0.5px; }
+        .item .acciones { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+        .vacio { text-align: center; color: #999; font-style: italic; padding: 20px 0 4px; }
+        .nota { background: rgba(184,134,11,0.12); border-left: 3px solid var(--dorado); padding: 12px 14px; font-size: 0.98rem; color: #ddd; margin-top: 18px; }
+
+        #toast {
+            position: fixed; left: 50%; bottom: 24px; transform: translate(-50%, 30px); opacity: 0; pointer-events: none; transition: 0.3s;
+            background: var(--verde); color: #fff; font-family: var(--sans); font-size: 0.85rem; padding: 14px 22px; border-radius: 4px; z-index: 50; max-width: 90vw; text-align: center;
+        }
+        #toast.mostrar { opacity: 1; transform: translate(-50%, 0); }
+        #toast.mal { background: var(--rojo); }
+
+        @media (max-width: 520px) {
+            .item { flex-wrap: wrap; }
+            .item .acciones { width: 100%; justify-content: flex-start; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>LM <span>Custom Glow</span></h1>
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <a href="/" class="btn btn-borde btn-chico" style="text-decoration:none; display:inline-block;">Ver catálogo</a>
+            <button class="btn btn-borde btn-chico" id="btnSalir" hidden>Salir</button>
+        </div>
+    </header>
+
+    <!-- ENTRADA -->
+    <main class="wrap" id="vistaLogin">
+        <div class="card" style="max-width:420px; margin: 40px auto;">
+            <h2>Administrar</h2>
+            <p class="sub">Escribe la contraseña para agregar o cambiar productos.</p>
+            <form id="formLogin">
+                <label for="clave">Contraseña</label>
+                <input type="password" id="clave" autocomplete="current-password" required>
+                <p class="error" id="errLogin" role="alert"></p>
+                <div class="fila"><button class="btn btn-oro" id="btnEntrar" type="submit">Entrar</button></div>
+            </form>
+        </div>
+    </main>
+
+    <!-- PANEL -->
+    <main class="wrap" id="vistaPanel" hidden>
+
+        <section class="card">
+            <h2 id="tituloForm">Nuevo producto</h2>
+            <p class="sub" id="subForm">Llena los datos y toca “Publicar”. Aparece en el catálogo al instante.</p>
+
+            <form id="formProducto" novalidate>
+                <label for="nombre">Título</label>
+                <input type="text" id="nombre" maxlength="80" placeholder="Ej: Pulsera Corazón Dorado" required>
+
+                <label for="desc">Descripción <small>(opcional)</small></label>
+                <textarea id="desc" maxlength="400" placeholder="Cuenta de qué material es, qué se puede grabar, tamaño…"></textarea>
+
+                <label for="precio">Precio <small>(opcional — si lo dejas vacío dice “Consultar precio”)</small></label>
+                <input type="text" id="precio" maxlength="20" placeholder="Ej: $15">
+
+                <label for="cat">Categoría</label>
+                <select id="cat" required>
+                    <option value="">Elige una…</option>
+                    <option value="parejas">Parejas</option>
+                    <option value="caballero">Caballero</option>
+                    <option value="llaveros">Llaveros</option>
+                    <option value="collares">Collares &amp; Sets</option>
+                    <option value="clasicas">Clásicas</option>
+                </select>
+
+                <label>Fotos <small>(hasta 4 · la primera es la principal)</small></label>
+                <div class="fotos" id="fotos"></div>
+                <input type="file" id="archivos" accept="image/*" multiple hidden>
+
+                <p class="error" id="errForm" role="alert"></p>
+                <div class="fila">
+                    <button type="submit" class="btn btn-oro" id="btnGuardar">Publicar producto</button>
+                    <button type="button" class="btn btn-borde" id="btnCancelar" hidden>Cancelar edición</button>
+                </div>
+            </form>
+        </section>
+
+        <section class="card">
+            <h2>Mis productos nuevos</h2>
+            <p class="sub">Los que agregaste desde aquí. Puedes cambiarlos o quitarlos cuando quieras.</p>
+            <div id="lista"></div>
+            <div class="nota">Los productos que ya venían en el catálogo desde el inicio no aparecen en esta lista. Si quieres cambiar o quitar alguno, pídeselo a quien armó tu página.</div>
+        </section>
+    </main>
+
+    <div id="toast" role="status"></div>
+
+    <script>
+    (() => {
+        const $ = (id) => document.getElementById(id);
+        const CATS = { parejas: 'Parejas', caballero: 'Caballero', llaveros: 'Llaveros', collares: 'Collares & Sets', clasicas: 'Clásicas' };
+        const MAX_FOTOS = 4;
+
+        let clave = '';
+        try { clave = sessionStorage.getItem('lm_admin') || ''; } catch (e) {}
+        let fotos = [];          // { url } (ya guardada) o { data } (nueva, en base64)
+        let editandoId = null;
+        let productos = [];
+
+        const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+        function aviso(texto, mal = false) {
+            const t = $('toast');
+            t.textContent = texto;
+            t.classList.toggle('mal', mal);
+            t.classList.add('mostrar');
+            clearTimeout(aviso.t);
+            aviso.t = setTimeout(() => t.classList.remove('mostrar'), 3500);
+        }
+
+        async function api(ruta, opciones = {}) {
+            const r = await fetch('/api' + ruta, {
+                ...opciones,
+                headers: { 'content-type': 'application/json', 'x-admin-password': clave, ...(opciones.headers || {}) },
+            });
+            let datos = null;
+            try { datos = await r.json(); } catch (e) {}
+            if (!r.ok) {
+                const err = new Error((datos && datos.error) || `Error ${r.status}`);
+                err.status = r.status;
+                throw err;
+            }
+            return datos;
+        }
+
+        /* ---------- entrada / salida ---------- */
+        function mostrarPanel() {
+            $('vistaLogin').hidden = true;
+            $('vistaPanel').hidden = false;
+            $('btnSalir').hidden = false;
+            cargarLista();
+            dibujarFotos();
+        }
+        function salir() {
+            clave = '';
+            try { sessionStorage.removeItem('lm_admin'); } catch (e) {}
+            $('vistaPanel').hidden = true;
+            $('btnSalir').hidden = true;
+            $('vistaLogin').hidden = false;
+            $('clave').value = '';
+        }
+        $('btnSalir').addEventListener('click', salir);
+
+        $('formLogin').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            $('errLogin').textContent = '';
+            clave = $('clave').value;
+            $('btnEntrar').disabled = true;
+            try {
+                await api('/login', { method: 'POST', body: '{}' });
+                try { sessionStorage.setItem('lm_admin', clave); } catch (e) {}
+                mostrarPanel();
+            } catch (err) {
+                clave = '';
+                $('errLogin').textContent = err.message;
+            } finally {
+                $('btnEntrar').disabled = false;
+            }
+        });
+
+        /* ---------- fotos ---------- */
+        function redimensionar(archivo, max = 1100, calidad = 0.82) {
+            return new Promise((ok, mal) => {
+                const url = URL.createObjectURL(archivo);
+                const img = new Image();
+                img.onload = () => {
+                    const k = Math.min(1, max / Math.max(img.width, img.height));
+                    const w = Math.round(img.width * k), h = Math.round(img.height * k);
+                    const c = document.createElement('canvas');
+                    c.width = w; c.height = h;
+                    const x = c.getContext('2d');
+                    x.fillStyle = '#fff'; x.fillRect(0, 0, w, h);
+                    x.drawImage(img, 0, 0, w, h);
+                    URL.revokeObjectURL(url);
+                    ok(c.toDataURL('image/jpeg', calidad));
+                };
+                img.onerror = () => { URL.revokeObjectURL(url); mal(new Error('No pude leer una de las fotos. Prueba con otra.')); };
+                img.src = url;
+            });
+        }
+
+        function dibujarFotos() {
+            const cont = $('fotos');
+            cont.innerHTML = fotos.map((f, i) => `
+                <div class="foto">
+                    <img src="${esc(f.url || f.data)}" alt="Foto ${i + 1}">
+                    <button type="button" data-quitar="${i}" aria-label="Quitar foto ${i + 1}">&times;</button>
+                    ${i === 0 ? '<span class="principal">Principal</span>' : ''}
+                </div>`).join('') +
+                (fotos.length < MAX_FOTOS
+                    ? `<button type="button" class="agregar-foto" id="btnAgregarFoto"><span>+</span>Agregar foto</button>` : '');
+        }
+
+        $('fotos').addEventListener('click', (e) => {
+            const q = e.target.closest('[data-quitar]');
+            if (q) { fotos.splice(Number(q.dataset.quitar), 1); dibujarFotos(); return; }
+            if (e.target.closest('#btnAgregarFoto')) $('archivos').click();
+        });
+
+        $('archivos').addEventListener('change', async (e) => {
+            const elegidos = [...e.target.files].slice(0, MAX_FOTOS - fotos.length);
+            e.target.value = '';
+            $('errForm').textContent = '';
+            for (const f of elegidos) {
+                try { fotos.push({ data: await redimensionar(f) }); }
+                catch (err) { $('errForm').textContent = err.message; }
+            }
+            dibujarFotos();
+        });
+
+        /* ---------- formulario ---------- */
+        function limpiarForm() {
+            editandoId = null;
+            $('formProducto').reset();
+            fotos = [];
+            dibujarFotos();
+            $('tituloForm').textContent = 'Nuevo producto';
+            $('subForm').textContent = 'Llena los datos y toca “Publicar”. Aparece en el catálogo al instante.';
+            $('btnGuardar').textContent = 'Publicar producto';
+            $('btnCancelar').hidden = true;
+            $('errForm').textContent = '';
+        }
+        $('btnCancelar').addEventListener('click', limpiarForm);
+
+        $('formProducto').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            $('errForm').textContent = '';
+            const nombre = $('nombre').value.trim();
+            if (!nombre) { $('errForm').textContent = 'Escribe el título del producto.'; $('nombre').focus(); return; }
+            if (!$('cat').value) { $('errForm').textContent = 'Elige una categoría.'; $('cat').focus(); return; }
+            if (!fotos.length) { $('errForm').textContent = 'Agrega al menos una foto.'; return; }
+
+            const cuerpo = {
+                nombre,
+                desc: $('desc').value,
+                precio: $('precio').value,
+                cat: $('cat').value,
+                mantener: fotos.filter((f) => f.url).map((f) => f.url),
+                nuevas: fotos.filter((f) => f.data).map((f) => f.data),
+            };
+            const edicion = editandoId;
+            $('btnGuardar').disabled = true;
+            $('btnGuardar').textContent = 'Guardando…';
+            try {
+                await api(edicion ? `/productos/${edicion}` : '/productos', {
+                    method: edicion ? 'PUT' : 'POST',
+                    body: JSON.stringify(cuerpo),
+                });
+                limpiarForm();
+                aviso(edicion ? 'Cambios guardados ✓' : 'Producto publicado ✓ Ya está en tu catálogo');
+                cargarLista();
+            } catch (err) {
+                if (err.status === 401) { salir(); return; }
+                $('errForm').textContent = err.message;
+                $('btnGuardar').textContent = edicion ? 'Guardar cambios' : 'Publicar producto';
+            } finally {
+                $('btnGuardar').disabled = false;
+            }
+        });
+
+        /* ---------- lista ---------- */
+        async function cargarLista() {
+            try {
+                const r = await fetch('/api/productos', { cache: 'no-store' });
+                productos = r.ok ? await r.json() : [];
+            } catch (e) { productos = []; }
+            const cont = $('lista');
+            if (!productos.length) {
+                cont.innerHTML = '<p class="vacio">Todavía no has agregado productos desde aquí.</p>';
+                return;
+            }
+            cont.innerHTML = productos.map((p) => `
+                <div class="item" data-id="${esc(p.id)}">
+                    <img src="${esc(p.imgs[0])}" alt="">
+                    <div class="datos">
+                        <strong>${esc(p.nombre)}</strong>
+                        <span>${esc(p.precio || 'Consultar precio')} · ${esc(CATS[p.cat] || p.cat)}</span>
+                    </div>
+                    <div class="acciones">
+                        <button class="btn btn-borde btn-chico" data-editar="${esc(p.id)}">Editar</button>
+                        <button class="btn btn-peligro btn-chico" data-borrar="${esc(p.id)}">Eliminar</button>
+                    </div>
+                </div>`).join('');
+        }
+
+        $('lista').addEventListener('click', async (e) => {
+            const ed = e.target.closest('[data-editar]');
+            const bo = e.target.closest('[data-borrar]');
+            if (ed) {
+                const p = productos.find((x) => x.id === ed.dataset.editar);
+                if (!p) return;
+                editandoId = p.id;
+                $('nombre').value = p.nombre;
+                $('desc').value = p.desc || '';
+                $('precio').value = p.precio || '';
+                $('cat').value = p.cat;
+                fotos = p.imgs.map((url) => ({ url }));
+                dibujarFotos();
+                $('tituloForm').textContent = 'Editar producto';
+                $('subForm').textContent = 'Cambia lo que necesites y toca “Guardar cambios”.';
+                $('btnGuardar').textContent = 'Guardar cambios';
+                $('btnCancelar').hidden = false;
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+            if (bo) {
+                const p = productos.find((x) => x.id === bo.dataset.borrar);
+                if (!p || !confirm(`¿Eliminar “${p.nombre}”? Esto no se puede deshacer.`)) return;
+                bo.disabled = true;
+                try {
+                    await api(`/productos/${p.id}`, { method: 'DELETE' });
+                    if (editandoId === p.id) limpiarForm();
+                    aviso('Producto eliminado');
+                    cargarLista();
+                } catch (err) {
+                    if (err.status === 401) { salir(); return; }
+                    aviso(err.message, true);
+                    bo.disabled = false;
+                }
+            }
+        });
+
+        /* ---------- arranque: si ya había entrado en esta pestaña ---------- */
+        if (clave) {
+            api('/login', { method: 'POST', body: '{}' }).then(mostrarPanel).catch(() => { clave = ''; });
+        }
+    })();
+    </script>
+</body>
+</html>
