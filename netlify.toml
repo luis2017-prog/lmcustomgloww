@@ -1,0 +1,17 @@
+[build]
+command = "npm install"
+  publish = "."
+  publish = "public"
+
+  [build.environment]
+    NODE_VERSION = "22"
+
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
+
+# La página de administración no debe aparecer en Google
+[[headers]]
+  for = "/admin.html"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"

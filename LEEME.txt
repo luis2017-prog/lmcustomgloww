@@ -1,0 +1,36 @@
+CATÁLOGO LM CUSTOM GLOW - CÓMO PUBLICARLO (con panel para agregar productos)
+==========================================================================
+
+QUÉ HAY EN ESTA CARPETA
+- public/                    -> la página (catálogo, admin.html, imágenes, videos)
+- netlify/functions/         -> el "motor" que guarda productos y fotos
+- netlify.toml, package.json -> configuración para Netlify
+
+PASOS (se hacen una sola vez)
+1) Crea una cuenta gratis en github.com y un repositorio nuevo (botón "New").
+   Ponle un nombre, por ejemplo: catalogo.
+2) En el repositorio: "uploading an existing file". Arrastra TODO el contenido de
+   esta carpeta (las carpetas public y netlify, y los archivos netlify.toml y
+   package.json) y toca "Commit changes".
+3) En Netlify: "Add new project" -> "Import an existing project" -> GitHub ->
+   elige tu repositorio -> "Deploy". (Esto crea una página nueva con otra dirección.)
+4) En ese proyecto de Netlify: Project configuration -> Environment variables ->
+   "Add a variable":
+       Nombre: ADMIN_PASSWORD
+       Valor:  la contraseña que quieras (larga, que no sea fácil de adivinar)
+   Luego ve a Deploys -> "Trigger deploy" para que la tome.
+5) Entra a  https://TU-PAGINA.netlify.app/admin.html , escribe la contraseña y listo.
+   Guarda esa dirección en favoritos o en la pantalla de inicio del celular.
+6) Si sale la insignia "Powered by Netlify": Project configuration -> General ->
+   "Powered by Netlify badge" -> apágala.
+
+USO DIARIO (el cliente)
+- Entra a /admin.html, llena título, descripción, precio, categoría y fotos (hasta 4).
+- Toca "Publicar". Aparece en el catálogo al instante, sin tocar nada más.
+- Para cambiar un precio, foto o texto: "Editar". Para quitarlo: "Eliminar".
+
+NOTAS
+- Las fotos se reducen solas antes de subirlas (más rápido y sin gastar de más).
+- Los 9 productos que ya venían en el catálogo están escritos en public/index.html;
+  el panel solo maneja los que se agregan desde ahí.
+- Para cambiar la contraseña: cambia ADMIN_PASSWORD en Netlify y vuelve a publicar.
