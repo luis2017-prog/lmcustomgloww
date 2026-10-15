@@ -457,6 +457,67 @@
         #modalVideo .titulo { text-align: center; color: var(--dorado-claro); font-family: var(--sans); font-size: 0.7rem; letter-spacing: 2px; text-transform: uppercase; margin-top: 12px; }
         #overlay img { max-width: 92%; max-height: 88%; border: 1px solid var(--dorado); }
 
+
+        [hidden] { display: none !important; }
+
+        /* ---------- ÍCONO DE ADMINISTRADOR ---------- */
+        .menu-navegacion a.nav-admin {
+            display: inline-flex; align-items: center; justify-content: center;
+            width: 30px; height: 30px; padding: 0; border: 1px solid #6b6159; border-radius: 50%; color: var(--plata);
+        }
+        .menu-navegacion a.nav-admin svg { width: 16px; height: 16px; fill: currentColor; }
+        .menu-navegacion a.nav-admin:hover { color: var(--dorado-claro); border-color: var(--dorado-claro); }
+
+        /* ---------- PANEL DE ADMINISTRADOR ---------- */
+        #adminOverlay { position: fixed; inset: 0; z-index: 5000; background: var(--oscuro); color: #fff; overflow-y: auto; font-family: var(--serif); font-size: 1.1rem; }
+        .adm-top { position: sticky; top: 0; z-index: 2; background: #000; border-bottom: 1px solid var(--dorado); padding: 14px 18px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+        .adm-top strong { font-size: 1.15rem; letter-spacing: 4px; text-transform: uppercase; color: var(--dorado-claro); }
+        .adm-top div { display: flex; gap: 8px; flex-shrink: 0; }
+        .adm-wrap { max-width: 720px; margin: 0 auto; padding: 24px 16px 70px; }
+        .adm-card { background: var(--carbon); border: 1px solid #2c2622; border-radius: 6px; padding: 22px; margin-bottom: 26px; }
+        .adm-card h2 { margin: 0 0 6px; font-size: 1.6rem; color: var(--dorado-claro); letter-spacing: 2px; text-transform: uppercase; }
+        .adm-sub { margin: 0 0 20px; color: #bbb; font-style: italic; }
+        .adm-card label { display: block; font-family: var(--sans); font-size: 0.68rem; letter-spacing: 2px; text-transform: uppercase; color: var(--plata); margin: 18px 0 6px; }
+        .adm-card label small { text-transform: none; letter-spacing: 0; color: #999; font-size: 0.75rem; }
+        .adm-card input[type=text], .adm-card input[type=password], .adm-card textarea, .adm-card select {
+            width: 100%; padding: 13px 14px; font-size: 1rem; font-family: var(--sans); color: #fff;
+            background: #0d0b0a; border: 1px solid #3a322c; border-radius: 3px;
+        }
+        .adm-card input:focus, .adm-card textarea:focus, .adm-card select:focus { outline: 2px solid var(--dorado); border-color: var(--dorado); }
+        .adm-card textarea { min-height: 110px; resize: vertical; }
+        .adm-btn { font-family: var(--sans); cursor: pointer; border: 1px solid transparent; border-radius: 3px; padding: 14px 24px; font-size: 0.72rem; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; transition: 0.25s; }
+        .adm-oro { background: var(--dorado); color: #fff; }
+        .adm-oro:hover:not(:disabled) { background: var(--dorado-claro); color: #000; }
+        .adm-borde { background: transparent; border-color: #6b6159; color: #fff; }
+        .adm-borde:hover { border-color: var(--dorado-claro); color: var(--dorado-claro); }
+        .adm-peligro { background: transparent; border-color: #6b3a35; color: #ff8a7d; }
+        .adm-peligro:hover { background: #e74c3c; color: #fff; border-color: #e74c3c; }
+        .adm-btn:disabled { opacity: 0.55; cursor: wait; }
+        .adm-chico { padding: 9px 14px; font-size: 0.62rem; }
+        .adm-fila { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 24px; }
+        .adm-error { color: #ff8a7d; font-family: var(--sans); font-size: 0.85rem; margin: 12px 0 0; min-height: 1.2em; }
+        .adm-fotos { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 10px; margin-top: 4px; }
+        .adm-foto { position: relative; aspect-ratio: 1; border: 1px solid #3a322c; border-radius: 3px; overflow: hidden; background: #000; }
+        .adm-foto img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .adm-foto button { position: absolute; top: 4px; right: 4px; width: 28px; height: 28px; border-radius: 50%; border: none; background: rgba(0,0,0,0.8); color: #fff; font-size: 1.2rem; line-height: 1; cursor: pointer; padding: 0 0 2px; }
+        .adm-foto .adm-principal { position: absolute; left: 0; bottom: 0; right: 0; background: rgba(184,134,11,0.9); font-family: var(--sans); font-size: 0.55rem; letter-spacing: 1px; text-align: center; padding: 3px; text-transform: uppercase; }
+        .adm-agregar { aspect-ratio: 1; border: 1px dashed var(--dorado); border-radius: 3px; background: transparent; color: var(--dorado-claro); font-family: var(--sans); font-size: 0.65rem; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; }
+        .adm-agregar span { font-size: 1.8rem; line-height: 1; }
+        .adm-agregar:hover { background: rgba(184,134,11,0.12); }
+        .adm-item { display: flex; gap: 14px; align-items: center; padding: 14px 0; border-top: 1px solid #2c2622; }
+        .adm-item:first-child { border-top: none; }
+        .adm-item img { width: 68px; height: 68px; object-fit: cover; border-radius: 3px; flex-shrink: 0; background: #000; }
+        .adm-datos { flex: 1; min-width: 0; }
+        .adm-datos strong { display: block; font-size: 1.15rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .adm-datos span { font-family: var(--sans); font-size: 0.72rem; color: #aaa; }
+        .adm-acciones { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+        .adm-vacio { text-align: center; color: #999; font-style: italic; padding: 20px 0 4px; }
+        .adm-nota { background: rgba(184,134,11,0.12); border-left: 3px solid var(--dorado); padding: 12px 14px; font-size: 0.98rem; color: #ddd; margin-top: 18px; }
+        #adm-toast { position: fixed; left: 50%; bottom: 24px; transform: translate(-50%, 30px); opacity: 0; pointer-events: none; transition: 0.3s; background: #2e9e5b; color: #fff; font-family: var(--sans); font-size: 0.85rem; padding: 14px 22px; border-radius: 4px; z-index: 5100; max-width: 90vw; text-align: center; }
+        #adm-toast.mostrar { opacity: 1; transform: translate(-50%, 0); }
+        #adm-toast.mal { background: #e74c3c; }
+        @media (max-width: 520px) { .adm-top { padding: 12px 14px; } .adm-top strong { font-size: 0.95rem; letter-spacing: 2px; } .adm-item { flex-wrap: wrap; } .adm-acciones { width: 100%; justify-content: flex-start; } }
+
         /* ---------- MÓVIL ---------- */
         @media (max-width: 600px) {
             .marca { font-size: 1.3rem; letter-spacing: 4px; }
@@ -487,6 +548,7 @@
             <a href="#como-comprar">Cómo comprar</a>
             <a href="javascript:void(0)" onclick="mostrarFavoritos()">❤️ Deseados <span id="cart-count" class="fav-count">0</span></a>
             <a href="javascript:void(0)" onclick="abrirContacto()">Contacto</a>
+            <a href="javascript:void(0)" class="nav-admin" onclick="abrirAdmin()" title="Administrador" aria-label="Acceso de administrador"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 12a5 5 0 1 0 0-10 5 5 0 0 0 0 10zm0 2c-4.4 0-8 2.2-8 5v3h16v-3c0-2.8-3.6-5-8-5z"/></svg></a>
         </nav>
     </header>
 
@@ -628,6 +690,73 @@
         </div>
     </div>
 
+    <div id="adminOverlay" role="dialog" aria-modal="true" aria-label="Administrador" hidden>
+        <div class="adm-top">
+            <strong>Administrador</strong>
+            <div>
+                <button class="adm-btn adm-borde adm-chico" id="adm-salir" hidden>Salir</button>
+                <button class="adm-btn adm-borde adm-chico" id="adm-cerrar" aria-label="Cerrar panel">Cerrar &times;</button>
+            </div>
+        </div>
+        <div class="adm-wrap">
+            <section class="adm-card" id="adm-login" style="max-width:420px; margin: 30px auto;">
+                <h2>Acceso</h2>
+                <p class="adm-sub">Escribe la contraseña para agregar o cambiar productos.</p>
+                <form id="adm-formLogin">
+                    <label for="adm-clave">Contraseña</label>
+                    <input type="password" id="adm-clave" autocomplete="current-password" required>
+                    <p class="adm-error" id="adm-errLogin" role="alert"></p>
+                    <div class="adm-fila"><button class="adm-btn adm-oro" id="adm-btnEntrar" type="submit">Entrar</button></div>
+                </form>
+            </section>
+
+            <div id="adm-panel" hidden>
+                <section class="adm-card">
+                    <h2 id="adm-tituloForm">Nuevo producto</h2>
+                    <p class="adm-sub" id="adm-subForm">Llena los datos y toca “Publicar”. Aparece en el catálogo al instante.</p>
+                    <form id="adm-formProducto" novalidate>
+                        <label for="adm-nombre">Título</label>
+                        <input type="text" id="adm-nombre" maxlength="80" placeholder="Ej: Pulsera Corazón Dorado">
+
+                        <label for="adm-desc">Descripción <small>(opcional)</small></label>
+                        <textarea id="adm-desc" maxlength="400" placeholder="Cuenta de qué material es, qué se puede grabar, tamaño…"></textarea>
+
+                        <label for="adm-precio">Precio <small>(opcional — si lo dejas vacío dice “Consultar precio”)</small></label>
+                        <input type="text" id="adm-precio" maxlength="20" placeholder="Ej: $15">
+
+                        <label for="adm-cat">Categoría</label>
+                        <select id="adm-cat">
+                            <option value="">Elige una…</option>
+                            <option value="parejas">Parejas</option>
+                            <option value="caballero">Caballero</option>
+                            <option value="llaveros">Llaveros</option>
+                            <option value="collares">Collares &amp; Sets</option>
+                            <option value="clasicas">Clásicas</option>
+                        </select>
+
+                        <label>Fotos <small>(hasta 4 · la primera es la principal)</small></label>
+                        <div class="adm-fotos" id="adm-fotos"></div>
+                        <input type="file" id="adm-archivos" accept="image/*" multiple hidden>
+
+                        <p class="adm-error" id="adm-errForm" role="alert"></p>
+                        <div class="adm-fila">
+                            <button type="submit" class="adm-btn adm-oro" id="adm-btnGuardar">Publicar producto</button>
+                            <button type="button" class="adm-btn adm-borde" id="adm-btnCancelar" hidden>Cancelar edición</button>
+                        </div>
+                    </form>
+                </section>
+
+                <section class="adm-card">
+                    <h2>Mis productos nuevos</h2>
+                    <p class="adm-sub">Los que agregaste desde aquí. Puedes cambiarlos o quitarlos cuando quieras.</p>
+                    <div id="adm-lista"></div>
+                    <div class="adm-nota">Los productos que ya venían en el catálogo desde el inicio no aparecen en esta lista. Si quieres cambiar o quitar alguno, pídeselo a quien armó tu página.</div>
+                </section>
+            </div>
+        </div>
+        <div id="adm-toast" role="status"></div>
+    </div>
+
     <div id="modalVideo" role="dialog" aria-modal="true" aria-label="Video del producto">
         <div class="caja">
             <button class="cerrar" onclick="cerrarVideo()" aria-label="Cerrar video">&times;</button>
@@ -674,13 +803,15 @@
         ];
 
         const miTelefono = "584125000498";
-        const porId = Object.fromEntries(productos.map(p => [p.id, p]));
+        let porId = Object.fromEntries(productos.map(p => [p.id, p]));
+        const esc = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+        let catActual = 'todas';
 
         /* Wishlist: guarda solo ids (y migra el formato anterior si existía) */
         let wishlist = [];
         try {
             const guardado = JSON.parse(localStorage.getItem('lm_wishlist')) || [];
-            wishlist = guardado.map(x => (typeof x === 'string' ? x : x.id)).filter(id => porId[id]);
+            wishlist = guardado.map(x => (typeof x === 'string' ? x : x.id));
         } catch (e) { wishlist = []; }
 
         function guardar() {
@@ -697,19 +828,19 @@
             const lista = cat === 'todas' ? productos : productos.filter(p => p.cat.includes(cat));
             grid.innerHTML = lista.map(p => `
                 <article class="producto" data-id="${p.id}">
-                    <span class="etiqueta">${p.tag || 'Personalizable'}</span>
-                    <button class="wishlist-btn" data-id="${p.id}" aria-label="Guardar ${p.nombre} en deseados"><i class="fas fa-heart"></i></button>
+                    <span class="etiqueta">${esc(p.tag || 'Personalizable')}</span>
+                    <button class="wishlist-btn" data-id="${p.id}" aria-label="Guardar ${esc(p.nombre)} en deseados"><i class="fas fa-heart"></i></button>
                     <div class="imagen-box">
-                        <img src="${p.imgs[0]}" alt="${p.nombre}" loading="lazy" style="object-position:${p.pos || 'center'}"
+                        <img src="${esc(p.imgs[0])}" alt="${esc(p.nombre)}" loading="lazy" style="object-position:${esc(p.pos || 'center')}"
                              onerror="this.closest('.producto').remove()">
                         ${p.video ? `<span class="play-badge" data-video="${p.id}"><i class="fas fa-play"></i> Ver video</span>` : ''}
                     </div>
                     ${p.imgs.length > 1 ? `<div class="thumbs">${p.imgs.map((src, i) =>
-                        `<button class="${i === 0 ? 'on' : ''}" data-src="${src}" aria-label="Ver foto ${i + 1}"><img src="${src}" alt="" loading="lazy"></button>`).join('')}</div>` : ''}
+                        `<button class="${i === 0 ? 'on' : ''}" data-src="${esc(src)}" aria-label="Ver foto ${i + 1}"><img src="${esc(src)}" alt="" loading="lazy"></button>`).join('')}</div>` : ''}
                     <div class="info">
-                        <h3>${p.nombre}</h3>
-                        <span class="precio">${p.precio ? p.precio : 'Consultar precio'}</span>
-                        <p>${p.desc}</p>
+                        <h3>${esc(p.nombre)}</h3>
+                        <span class="precio">${esc(p.precio || 'Consultar precio')}</span>
+                        <p>${esc(p.desc)}</p>
                         <div class="acciones">
                             ${p.video ? `<button class="btn-video" data-video="${p.id}"><i class="fas fa-circle-play"></i> Ver video</button>` : ''}
                             <a class="btn-pedir" target="_blank" rel="noopener"
@@ -745,7 +876,8 @@
             if (!b) return;
             document.querySelectorAll('.filtro').forEach(f => f.classList.remove('activo'));
             b.classList.add('activo');
-            renderProductos(b.dataset.cat);
+            catActual = b.dataset.cat;
+            renderProductos(catActual);
         });
 
         /* ---------- WISHLIST ---------- */
@@ -778,12 +910,12 @@
             }
             vacio.style.display = 'none';
             btn.style.display = 'block';
-            lista.innerHTML = wishlist.map(id => {
+            lista.innerHTML = wishlist.filter(id => porId[id]).map(id => {
                 const p = porId[id];
                 return `<div class="item-fav">
-                    <img src="${p.imgs[0]}" alt="">
-                    <h4>${p.nombre}</h4>
-                    <button onclick="toggleWishlist('${p.id}')" aria-label="Quitar ${p.nombre}"><i class="fas fa-trash"></i></button>
+                    <img src="${esc(p.imgs[0])}" alt="">
+                    <h4>${esc(p.nombre)}</h4>
+                    <button onclick="toggleWishlist('${esc(p.id)}')" aria-label="Quitar ${esc(p.nombre)}"><i class="fas fa-trash"></i></button>
                 </div>`;
             }).join('');
         }
@@ -791,7 +923,7 @@
         function enviarListaWhatsApp() {
             if (wishlist.length === 0) return;
             let msg = "¡Hola LM Custom Glow! 👋 Me han gustado estos productos de tu catálogo:\n\n";
-            wishlist.forEach((id, i) => { msg += `${i + 1}. *${porId[id].nombre}*\n`; });
+            wishlist.filter(id => porId[id]).forEach((id, i) => { msg += `${i + 1}. *${porId[id].nombre}*\n`; });
             msg += "\n¿Me das más información sobre precios y personalización?";
             window.open(waLink(msg), '_blank');
         }
@@ -834,8 +966,276 @@
             document.getElementById('header-principal').classList.toggle('compacto', window.scrollY > 80);
         }, { passive: true });
 
+        /* ---------- PRODUCTOS AGREGADOS DESDE /admin.html ---------- */
+        async function cargarDinamicos() {
+            try {
+                const r = await fetch('/api/productos', { cache: 'no-store' });
+                if (!r.ok) return;
+                const lista = await r.json();
+                if (!Array.isArray(lista)) return;
+                const reciente = Date.now() - 14 * 24 * 3600 * 1000;
+                const nuevos = lista
+                    .filter(d => d && d.id && d.nombre && Array.isArray(d.imgs) && d.imgs.length)
+                    .map(d => ({
+                        id: d.id, dinamico: true, cat: [d.cat], nombre: d.nombre, desc: d.desc || '',
+                        precio: d.precio || null, imgs: d.imgs,
+                        tag: d.creado > reciente ? 'Nuevo' : 'Personalizable'
+                    }));
+                for (let i = productos.length - 1; i >= 0; i--) { if (productos[i].dinamico) productos.splice(i, 1); }
+                productos.unshift(...nuevos);
+                porId = Object.fromEntries(productos.map(p => [p.id, p]));
+                wishlist = wishlist.filter(id => porId[id]);
+                guardar();
+                renderProductos(catActual);
+            } catch (e) { /* sin servidor (por ejemplo, abierto desde el computador): solo se ven los productos fijos */ }
+        }
+
+        /* ---------- PANEL DE ADMINISTRADOR (ícono de persona) ---------- */
+        (() => {
+            const A = (id) => document.getElementById('adm-' + id);
+            const ov = document.getElementById('adminOverlay');
+            const CATS = { parejas: 'Parejas', caballero: 'Caballero', llaveros: 'Llaveros', collares: 'Collares & Sets', clasicas: 'Clásicas' };
+            const MAX_FOTOS = 4;
+            let clave = '';
+            try { clave = sessionStorage.getItem('lm_admin') || ''; } catch (e) {}
+            let fotosAdm = [];      // { url } (ya guardada) o { data } (nueva)
+            let editandoId = null;
+            let lista = [];
+
+            function aviso(texto, mal = false) {
+                const t = A('toast');
+                t.textContent = texto;
+                t.classList.toggle('mal', mal);
+                t.classList.add('mostrar');
+                clearTimeout(aviso.t);
+                aviso.t = setTimeout(() => t.classList.remove('mostrar'), 3500);
+            }
+
+            async function api(ruta, opciones = {}) {
+                let r;
+                try {
+                    r = await fetch('/api' + ruta, {
+                        ...opciones,
+                        headers: { 'content-type': 'application/json', 'x-admin-password': clave, ...(opciones.headers || {}) },
+                    });
+                } catch (e) {
+                    const err = new Error('No hay conexión con el servidor. Revisa tu internet e inténtalo de nuevo.');
+                    err.status = 0; throw err;
+                }
+                let datos = null;
+                try { datos = await r.json(); } catch (e) {}
+                if (!r.ok) {
+                    const sinServidor = r.status === 404 && !(datos && datos.error);
+                    const err = new Error(sinServidor
+                        ? 'No encuentro el servidor de productos. En Netlify revisa que el “Directorio de funciones” sea netlify/functions y vuelve a publicar.'
+                        : ((datos && datos.error) || `Error ${r.status}`));
+                    err.status = r.status; throw err;
+                }
+                return datos;
+            }
+
+            /* ----- abrir / cerrar ----- */
+            function mostrarLogin() {
+                A('login').hidden = false; A('panel').hidden = true; A('salir').hidden = true;
+                setTimeout(() => A('clave').focus(), 50);
+            }
+            function mostrarPanel() {
+                A('login').hidden = true; A('panel').hidden = false; A('salir').hidden = false;
+                cargarLista(); dibujarFotos();
+            }
+            function abrir() {
+                ov.hidden = false;
+                document.body.style.overflow = 'hidden';
+                ov.scrollTop = 0;
+                if (clave) {
+                    api('/login', { method: 'POST', body: '{}' }).then(mostrarPanel).catch(() => { clave = ''; mostrarLogin(); });
+                } else { mostrarLogin(); }
+            }
+            function cerrar() { ov.hidden = true; document.body.style.overflow = ''; }
+            window.abrirAdmin = abrir;
+            window.cerrarAdmin = cerrar;
+            A('cerrar').addEventListener('click', cerrar);
+            document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !ov.hidden) cerrar(); });
+
+            function salir() {
+                clave = '';
+                try { sessionStorage.removeItem('lm_admin'); } catch (e) {}
+                A('clave').value = '';
+                limpiarForm();
+                mostrarLogin();
+            }
+            A('salir').addEventListener('click', salir);
+
+            A('formLogin').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                A('errLogin').textContent = '';
+                clave = A('clave').value;
+                A('btnEntrar').disabled = true;
+                try {
+                    await api('/login', { method: 'POST', body: '{}' });
+                    try { sessionStorage.setItem('lm_admin', clave); } catch (e) {}
+                    mostrarPanel();
+                } catch (err) {
+                    clave = '';
+                    A('errLogin').textContent = err.message;
+                } finally { A('btnEntrar').disabled = false; }
+            });
+
+            /* ----- fotos ----- */
+            function redimensionar(archivo, max = 1100, calidad = 0.82) {
+                return new Promise((ok, mal) => {
+                    const url = URL.createObjectURL(archivo);
+                    const img = new Image();
+                    img.onload = () => {
+                        const k = Math.min(1, max / Math.max(img.width, img.height));
+                        const w = Math.round(img.width * k), h = Math.round(img.height * k);
+                        const c = document.createElement('canvas');
+                        c.width = w; c.height = h;
+                        const x = c.getContext('2d');
+                        x.fillStyle = '#fff'; x.fillRect(0, 0, w, h);
+                        x.drawImage(img, 0, 0, w, h);
+                        URL.revokeObjectURL(url);
+                        ok(c.toDataURL('image/jpeg', calidad));
+                    };
+                    img.onerror = () => { URL.revokeObjectURL(url); mal(new Error('No pude leer una de las fotos. Prueba con otra.')); };
+                    img.src = url;
+                });
+            }
+            function dibujarFotos() {
+                A('fotos').innerHTML = fotosAdm.map((f, i) => `
+                    <div class="adm-foto">
+                        <img src="${esc(f.url || f.data)}" alt="Foto ${i + 1}">
+                        <button type="button" data-quitar="${i}" aria-label="Quitar foto ${i + 1}">&times;</button>
+                        ${i === 0 ? '<span class="adm-principal">Principal</span>' : ''}
+                    </div>`).join('') +
+                    (fotosAdm.length < MAX_FOTOS ? '<button type="button" class="adm-agregar" id="adm-btnFoto"><span>+</span>Agregar foto</button>' : '');
+            }
+            A('fotos').addEventListener('click', (e) => {
+                const q = e.target.closest('[data-quitar]');
+                if (q) { fotosAdm.splice(Number(q.dataset.quitar), 1); dibujarFotos(); return; }
+                if (e.target.closest('#adm-btnFoto')) A('archivos').click();
+            });
+            A('archivos').addEventListener('change', async (e) => {
+                const elegidos = [...e.target.files].slice(0, MAX_FOTOS - fotosAdm.length);
+                e.target.value = '';
+                A('errForm').textContent = '';
+                for (const f of elegidos) {
+                    try { fotosAdm.push({ data: await redimensionar(f) }); }
+                    catch (err) { A('errForm').textContent = err.message; }
+                }
+                dibujarFotos();
+            });
+
+            /* ----- formulario ----- */
+            function limpiarForm() {
+                editandoId = null;
+                A('formProducto').reset();
+                fotosAdm = [];
+                dibujarFotos();
+                A('tituloForm').textContent = 'Nuevo producto';
+                A('subForm').textContent = 'Llena los datos y toca “Publicar”. Aparece en el catálogo al instante.';
+                A('btnGuardar').textContent = 'Publicar producto';
+                A('btnCancelar').hidden = true;
+                A('errForm').textContent = '';
+            }
+            A('btnCancelar').addEventListener('click', limpiarForm);
+
+            A('formProducto').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                A('errForm').textContent = '';
+                const nombre = A('nombre').value.trim();
+                if (!nombre) { A('errForm').textContent = 'Escribe el título del producto.'; A('nombre').focus(); return; }
+                if (!A('cat').value) { A('errForm').textContent = 'Elige una categoría.'; A('cat').focus(); return; }
+                if (!fotosAdm.length) { A('errForm').textContent = 'Agrega al menos una foto.'; return; }
+                const cuerpo = {
+                    nombre, desc: A('desc').value, precio: A('precio').value, cat: A('cat').value,
+                    mantener: fotosAdm.filter((f) => f.url).map((f) => f.url),
+                    nuevas: fotosAdm.filter((f) => f.data).map((f) => f.data),
+                };
+                const edicion = editandoId;
+                A('btnGuardar').disabled = true;
+                A('btnGuardar').textContent = 'Guardando…';
+                try {
+                    await api(edicion ? `/productos/${edicion}` : '/productos', { method: edicion ? 'PUT' : 'POST', body: JSON.stringify(cuerpo) });
+                    limpiarForm();
+                    aviso(edicion ? 'Cambios guardados ✓' : 'Producto publicado ✓ Ya está en tu catálogo');
+                    cargarLista();
+                    cargarDinamicos();
+                } catch (err) {
+                    if (err.status === 401) { salir(); return; }
+                    A('errForm').textContent = err.message;
+                    A('btnGuardar').textContent = edicion ? 'Guardar cambios' : 'Publicar producto';
+                } finally { A('btnGuardar').disabled = false; }
+            });
+
+            /* ----- lista ----- */
+            async function cargarLista() {
+                try {
+                    const r = await fetch('/api/productos', { cache: 'no-store' });
+                    lista = r.ok ? await r.json() : [];
+                } catch (e) { lista = []; }
+                const cont = A('lista');
+                if (!Array.isArray(lista) || !lista.length) {
+                    lista = [];
+                    cont.innerHTML = '<p class="adm-vacio">Todavía no has agregado productos desde aquí.</p>';
+                    return;
+                }
+                cont.innerHTML = lista.map((p) => `
+                    <div class="adm-item">
+                        <img src="${esc(p.imgs[0])}" alt="">
+                        <div class="adm-datos">
+                            <strong>${esc(p.nombre)}</strong>
+                            <span>${esc(p.precio || 'Consultar precio')} · ${esc(CATS[p.cat] || p.cat)}</span>
+                        </div>
+                        <div class="adm-acciones">
+                            <button class="adm-btn adm-borde adm-chico" data-editar="${esc(p.id)}">Editar</button>
+                            <button class="adm-btn adm-peligro adm-chico" data-borrar="${esc(p.id)}">Eliminar</button>
+                        </div>
+                    </div>`).join('');
+            }
+            A('lista').addEventListener('click', async (e) => {
+                const ed = e.target.closest('[data-editar]');
+                const bo = e.target.closest('[data-borrar]');
+                if (ed) {
+                    const p = lista.find((x) => x.id === ed.dataset.editar);
+                    if (!p) return;
+                    editandoId = p.id;
+                    A('nombre').value = p.nombre;
+                    A('desc').value = p.desc || '';
+                    A('precio').value = p.precio || '';
+                    A('cat').value = p.cat;
+                    fotosAdm = p.imgs.map((url) => ({ url }));
+                    dibujarFotos();
+                    A('tituloForm').textContent = 'Editar producto';
+                    A('subForm').textContent = 'Cambia lo que necesites y toca “Guardar cambios”.';
+                    A('btnGuardar').textContent = 'Guardar cambios';
+                    A('btnCancelar').hidden = false;
+                    ov.scrollTo({ top: 0, behavior: 'smooth' });
+                }
+                if (bo) {
+                    const p = lista.find((x) => x.id === bo.dataset.borrar);
+                    if (!p || !confirm(`¿Eliminar “${p.nombre}”? Esto no se puede deshacer.`)) return;
+                    bo.disabled = true;
+                    try {
+                        await api(`/productos/${p.id}`, { method: 'DELETE' });
+                        if (editandoId === p.id) limpiarForm();
+                        aviso('Producto eliminado');
+                        cargarLista();
+                        cargarDinamicos();
+                    } catch (err) {
+                        if (err.status === 401) { salir(); return; }
+                        aviso(err.message, true);
+                        bo.disabled = false;
+                    }
+                }
+            });
+
+            if (location.hash === '#admin') abrir();
+        })();
+
         /* ---------- INICIO ---------- */
         renderProductos();
+        cargarDinamicos();
         window.addEventListener('load', () => {
             if (wishlist.length === 0) {
                 setTimeout(() => { document.getElementById('guiaPestaña').style.display = 'block'; }, 2500);
