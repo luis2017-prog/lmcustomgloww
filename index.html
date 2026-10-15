@@ -231,6 +231,18 @@
             justify-content: center;
             gap: 28px;
         }
+        .catalogo { max-width: 1100px; margin: 0 auto 30px; padding: 0 20px; }
+        .grupo { margin-bottom: 38px; }
+        .grupo-titulo {
+            display: flex; align-items: center; gap: 16px; margin: 6px 0 20px;
+            font-family: var(--serif); font-size: 1.5rem; letter-spacing: 5px; text-transform: uppercase; font-weight: 700; color: var(--oscuro);
+        }
+        .grupo-titulo::before, .grupo-titulo::after { content: ""; flex: 1; height: 1px; background: linear-gradient(90deg, transparent, var(--dorado)); }
+        .grupo-titulo::after { background: linear-gradient(270deg, transparent, var(--dorado)); }
+        .grupo-grid {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 330px)); justify-content: center; gap: 28px;
+        }
+        .btn-pedir .corto { display: none; }
         .producto {
             background: var(--blanco);
             border: 1px solid #eee;
@@ -564,6 +576,29 @@
             .seccion-titulo, .personaliza h2 { font-size: 1.6rem; letter-spacing: 3px; }
             .contenedor { padding: 14px; }
             .hero { padding: 30px 14px 55px; }
+
+            /* Catálogo en el teléfono: 3 productos por fila */
+            .catalogo { padding: 0 8px; }
+            .grupo-titulo { font-size: 1.05rem; letter-spacing: 3px; gap: 10px; margin-bottom: 12px; }
+            .grupo-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+            .producto:hover { transform: none; }
+            .etiqueta { top: 5px; left: 5px; font-size: 0.42rem; letter-spacing: 0.5px; padding: 3px 5px; }
+            .wishlist-btn { top: 5px; right: 5px; width: 28px; height: 28px; font-size: 0.7rem; }
+            .play-badge { bottom: 5px; font-size: 0.42rem; letter-spacing: 0.5px; padding: 4px 7px; gap: 4px; }
+            .sello-agotado { font-size: 0.55rem; letter-spacing: 2px; padding: 5px 9px; border-width: 1px; }
+            .thumbs { gap: 3px; padding: 4px; flex-wrap: wrap; }
+            .thumbs button { width: 20px; height: 20px; border-width: 1px; }
+            .info { padding: 8px 6px 10px; }
+            .info h3 { font-size: 0.82rem; line-height: 1.15; }
+            .precio { font-size: 0.78rem; margin: 5px 0; letter-spacing: 0; }
+            .precio small.bs { font-size: 0.62rem; }
+            .info p { font-size: 0.7rem; line-height: 1.25; margin-bottom: 8px; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+            .btn-pedir, .btn-video { padding: 7px 2px; font-size: 0.5rem; letter-spacing: 0.5px; }
+            .btn-video { gap: 4px; }
+            .btn-pedir .largo { display: none; }
+            .btn-pedir .corto { display: inline; }
+            .acciones { gap: 5px; }
+            .tasa-dia b { font-size: 0.68rem; padding: 6px 11px; }
         }
         @media (prefers-reduced-motion: reduce) {
             *, *::before, *::after { animation: none !important; transition: none !important; }
@@ -611,7 +646,7 @@
         <button class="filtro" data-cat="llaveros">Llaveros</button>
         <button class="filtro" data-cat="collares">Collares &amp; Sets</button>
     </div>
-    <div class="contenedor" id="grid-productos"></div>
+    <div class="catalogo" id="grid-productos"></div>
 
     <!-- PERSONALIZACIÓN -->
     <section class="personaliza" id="personalizado">
@@ -883,18 +918,23 @@
             return `https://wa.me/${miTelefono}?text=${encodeURIComponent(texto)}`;
         }
 
-        function renderProductos(cat = 'todas') {
-            const grid = document.getElementById('grid-productos');
-            const visibles = productos.filter(p => !ajustes.ocultos.includes(p.id));
-            const lista = cat === 'todas' ? visibles : visibles.filter(p => p.cat.includes(cat));
-            grid.innerHTML = lista.map(p => `
+        const GRUPOS = [['parejas', 'Parejas'], ['caballero', 'Caballero'], ['llaveros', 'Llaveros'], ['collares', 'Collares & Sets']];
+
+        function quitarTarjeta(img) {
+            const g = img.closest('.grupo');
+            img.closest('.producto').remove();
+            if (g && !g.querySelector('.producto')) g.remove();
+        }
+
+        function tarjeta(p) {
+            return `
                 <article class="producto${agotado(p.id) ? ' agotado' : ''}" data-id="${p.id}">
                     <span class="etiqueta">${esc(p.tag || 'Personalizable')}</span>
                     <button class="wishlist-btn" data-id="${p.id}" aria-label="Agregar ${esc(p.nombre)} al carrito"><i class="fas fa-shopping-cart"></i></button>
                     <div class="imagen-box">
                         ${agotado(p.id) ? '<span class="sello-agotado">Agotado</span>' : ''}
                         <img src="${esc(p.imgs[0])}" alt="${esc(p.nombre)}" loading="lazy" style="object-position:${esc(p.pos || 'center')}"
-                             onerror="this.closest('.producto').remove()">
+                             onerror="quitarTarjeta(this)">
                         ${p.video ? `<span class="play-badge" data-video="${p.id}"><i class="fas fa-play"></i> Ver video</span>` : ''}
                     </div>
                     ${p.imgs.length > 1 ? `<div class="thumbs">${p.imgs.map((src, i) =>
@@ -907,12 +947,27 @@
                             ${p.video ? `<button class="btn-video" data-video="${p.id}"><i class="fas fa-circle-play"></i> Ver video</button>` : ''}
                             <a class="btn-pedir" target="_blank" rel="noopener"
                                href="${waLink('¡Hola LM Custom Glow! 👋 Me interesa: ' + p.nombre)}">
-                                ${agotado(p.id) ? 'Agotado' : 'Pedir este modelo'}
+                                ${agotado(p.id) ? 'Agotado' : '<span class="largo">Pedir este modelo</span><span class="corto">Pedir</span>'}
                             </a>
                         </div>
                     </div>
-                </article>
-            `).join('');
+                </article>`;
+        }
+
+        function renderProductos(cat = 'todas') {
+            const grid = document.getElementById('grid-productos');
+            // Fijos primero y, dentro de cada categoría, los que agregue el dueño van al final (el más nuevo de último).
+            const orden = [...productos.filter(p => !p.dinamico),
+                           ...productos.filter(p => p.dinamico).sort((a, b) => (a.creado || 0) - (b.creado || 0))]
+                .filter(p => !ajustes.ocultos.includes(p.id));
+            let html = '';
+            for (const [clave, nombre] of GRUPOS) {
+                // En "Todas" cada producto aparece una sola vez, en su categoría principal.
+                const items = orden.filter(p => cat === 'todas' ? p.cat[0] === clave : (clave === cat && p.cat.includes(cat)));
+                if (!items.length) continue;
+                html += `<section class="grupo" data-grupo="${clave}"><h3 class="grupo-titulo">${esc(nombre)}</h3><div class="grupo-grid">${items.map(tarjeta).join('')}</div></section>`;
+            }
+            grid.innerHTML = html;
             actualizarUI();
         }
 
@@ -1054,12 +1109,12 @@
                 const nuevos = lista
                     .filter(d => d && d.id && d.nombre && Array.isArray(d.imgs) && d.imgs.length)
                     .map(d => ({
-                        id: d.id, dinamico: true, cat: [d.cat], nombre: d.nombre, desc: d.desc || '',
+                        id: d.id, dinamico: true, creado: d.creado || 0, cat: [d.cat], nombre: d.nombre, desc: d.desc || '',
                         precio: d.precio || null, imgs: d.imgs,
                         tag: d.creado > reciente ? 'Nuevo' : 'Personalizable'
                     }));
                 for (let i = productos.length - 1; i >= 0; i--) { if (productos[i].dinamico) productos.splice(i, 1); }
-                productos.unshift(...nuevos);
+                productos.push(...nuevos);
                 porId = Object.fromEntries(productos.map(p => [p.id, p]));
             }
             wishlist = wishlist.filter(disponible);
