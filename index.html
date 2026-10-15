@@ -255,7 +255,7 @@
         .producto:hover { box-shadow: 0 15px 35px rgba(0,0,0,0.12); border-color: var(--dorado); transform: translateY(-3px); }
         .imagen-box { width: 100%; aspect-ratio: 1 / 1; overflow: hidden; cursor: zoom-in; background: #111; position: relative; }
         .thumbs { display: flex; gap: 6px; padding: 8px; background: #111; justify-content: center; }
-        .thumbs button { width: 58px; height: 58px; padding: 0; border: 2px solid transparent; background: none; cursor: pointer; opacity: 0.6; transition: 0.3s; }
+        .thumbs button { width: 58px; height: 58px; padding: 0; border: 2px solid transparent; flex: none; background: none; cursor: pointer; opacity: 0.6; transition: 0.3s; }
         .thumbs button.on, .thumbs button:hover { opacity: 1; border-color: var(--dorado-claro); }
         .thumbs img { width: 100%; height: 100%; object-fit: cover; display: block; }
         .acciones { display: grid; gap: 8px; }
@@ -271,8 +271,10 @@
             font-family: var(--sans); font-size: 0.6rem; letter-spacing: 2px; text-transform: uppercase;
             padding: 7px 14px; border-radius: 20px; cursor: pointer; display: flex; gap: 8px; align-items: center;
         }
-        .imagen-box img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s; display: block; }
-        .producto:hover .imagen-box img { transform: scale(1.05); }
+        .slides { display: flex; height: 100%; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; -webkit-overflow-scrolling: touch; overscroll-behavior-x: contain; }
+        .slides::-webkit-scrollbar { display: none; }
+        .slides img { flex: 0 0 100%; width: 100%; height: 100%; object-fit: cover; display: block; scroll-snap-align: center; scroll-snap-stop: always; }
+        .contador-fotos { position: absolute; right: 8px; bottom: 8px; z-index: 6; background: rgba(13,11,10,0.8); color: #fff; font: 600 0.62rem var(--sans); letter-spacing: 1px; padding: 3px 8px; border-radius: 10px; pointer-events: none; }
         .etiqueta {
             position: absolute; top: 15px; left: 15px; z-index: 10;
             background: rgba(13,11,10,0.85); color: var(--dorado-claro);
@@ -467,7 +469,21 @@
         #modalVideo video { width: 100%; max-height: 82vh; display: block; background: #000; border: 1px solid var(--dorado); }
         #modalVideo .cerrar { position: absolute; top: -40px; right: 0; background: none; border: none; color: #fff; font-size: 2rem; cursor: pointer; }
         #modalVideo .titulo { text-align: center; color: var(--dorado-claro); font-family: var(--sans); font-size: 0.7rem; letter-spacing: 2px; text-transform: uppercase; margin-top: 12px; }
-        #overlay img { max-width: 92%; max-height: 88%; border: 1px solid var(--dorado); }
+        #overlay { flex-direction: column; }
+        .gal-slides { width: 100%; flex: 1; min-height: 0; display: flex; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; -webkit-overflow-scrolling: touch; overscroll-behavior-x: contain; }
+        .gal-slides::-webkit-scrollbar { display: none; }
+        .gal-slide { flex: 0 0 100%; height: 100%; display: flex; align-items: center; justify-content: center; scroll-snap-align: center; scroll-snap-stop: always; padding: 70px 10px 10px; box-sizing: border-box; }
+        .gal-slide img { max-width: 100%; max-height: 100%; object-fit: contain; border: 1px solid var(--dorado); }
+        .gal-thumbs { flex: none; display: flex; gap: 8px; justify-content: center; padding: 10px 10px 18px; max-width: 100%; overflow-x: auto; cursor: default; }
+        .gal-thumbs button { flex: none; width: 56px; height: 56px; padding: 0; border: 2px solid transparent; background: none; cursor: pointer; opacity: 0.55; transition: 0.25s; }
+        .gal-thumbs button.on { opacity: 1; border-color: var(--dorado-claro); }
+        .gal-thumbs img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .gal-cuenta { position: absolute; top: 28px; left: 18px; z-index: 4001; color: #fff; font: 600 0.8rem var(--sans); letter-spacing: 2px; background: rgba(13,11,10,0.85); padding: 6px 12px; border-radius: 14px; border: 1px solid rgba(231,195,106,0.5); }
+        .gal-flecha { position: absolute; top: 50%; transform: translateY(-50%); z-index: 4001; width: 46px; height: 46px; border-radius: 50%; border: 1px solid var(--dorado-claro); background: rgba(13,11,10,0.85); color: #fff; font-size: 1.8rem; line-height: 1; cursor: pointer; padding: 0 0 4px; }
+        .gal-flecha:hover { background: var(--dorado); }
+        .gal-flecha.ant { left: 12px; } .gal-flecha.sig { right: 12px; }
+        @media (hover: none) { .gal-flecha { display: none; } }
+        #overlay.una .gal-flecha, #overlay.una .gal-cuenta, #overlay.una .gal-thumbs { display: none; }
 
 
         [hidden] { display: none !important; }
@@ -586,8 +602,9 @@
             .wishlist-btn { top: 5px; right: 5px; width: 28px; height: 28px; font-size: 0.7rem; }
             .play-badge { bottom: 5px; font-size: 0.42rem; letter-spacing: 0.5px; padding: 4px 7px; gap: 4px; }
             .sello-agotado { font-size: 0.55rem; letter-spacing: 2px; padding: 5px 9px; border-width: 1px; }
-            .thumbs { gap: 3px; padding: 4px; flex-wrap: wrap; }
-            .thumbs button { width: 20px; height: 20px; border-width: 1px; }
+            .thumbs { gap: 4px; padding: 5px 4px; flex-wrap: wrap; }
+            .thumbs button { width: 26px; height: 26px; border-width: 2px; }
+            .contador-fotos { right: 5px; bottom: 5px; font-size: 0.5rem; padding: 2px 6px; }
             .info { padding: 8px 6px 10px; }
             .info h3 { font-size: 0.82rem; line-height: 1.15; }
             .precio { font-size: 0.78rem; margin: 5px 0; letter-spacing: 0; }
@@ -834,7 +851,14 @@
         </div>
     </div>
 
-    <div id="overlay" onclick="cerrarImagen()"><button class="cerrar-img" onclick="cerrarImagen()" aria-label="Cerrar imagen">&times;</button><img id="imgAmpliada" src="" alt="Imagen ampliada"></div>
+    <div id="overlay" onclick="cerrarImagen()">
+        <button class="cerrar-img" onclick="cerrarImagen()" aria-label="Cerrar imagen">&times;</button>
+        <span class="gal-cuenta" id="galCuenta"></span>
+        <button class="gal-flecha ant" id="galAnt" aria-label="Foto anterior">&#8249;</button>
+        <button class="gal-flecha sig" id="galSig" aria-label="Foto siguiente">&#8250;</button>
+        <div class="gal-slides" id="galSlides"></div>
+        <div class="gal-thumbs" id="galThumbs"></div>
+    </div>
 
     <script>
         /* ---------- DATOS ---------- */
@@ -921,8 +945,10 @@
                     <button class="wishlist-btn" data-id="${p.id}" aria-label="Agregar ${esc(p.nombre)} al carrito"><i class="fas fa-shopping-cart"></i></button>
                     <div class="imagen-box">
                         ${agotado(p.id) ? '<span class="sello-agotado">Agotado</span>' : ''}
-                        <img src="${esc(p.imgs[0])}" alt="${esc(p.nombre)}" loading="lazy" style="object-position:${esc(p.pos || 'center')}"
-                             onerror="quitarTarjeta(this)">
+                        <div class="slides">${p.imgs.map((src, i) =>
+                            `<img src="${esc(src)}" alt="${esc(p.nombre)}${i ? ' ' + (i + 1) : ''}" loading="${i ? 'lazy' : 'eager'}" draggable="false" style="object-position:${esc(p.pos || 'center')}"
+                                  onerror="${i === 0 ? 'quitarTarjeta(this)' : 'this.remove()'}">`).join('')}</div>
+                        ${p.imgs.length > 1 ? `<span class="contador-fotos">1 / ${p.imgs.length}</span>` : ''}
                         ${p.video ? `<span class="play-badge" data-video="${p.id}"><i class="fas fa-play"></i> Ver video</span>` : ''}
                     </div>
                     ${p.imgs.length > 1 ? `<div class="thumbs">${p.imgs.map((src, i) =>
@@ -967,14 +993,27 @@
             if (vid) { abrirVideo(vid.dataset.video); return; }
             const th = e.target.closest('.thumbs button');
             if (th) {
-                const card = th.closest('.producto');
-                card.querySelector('.imagen-box img').src = th.dataset.src;
-                card.querySelectorAll('.thumbs button').forEach(b => b.classList.toggle('on', b === th));
+                const sl = th.closest('.producto').querySelector('.slides');
+                sl.scrollTo({ left: [...th.parentNode.children].indexOf(th) * sl.clientWidth, behavior: 'smooth' });
                 return;
             }
             const box = e.target.closest('.imagen-box');
-            if (box) ampliarImagen(box.querySelector('img').src);
+            if (box) {
+                const sl = box.querySelector('.slides');
+                abrirGaleria(box.closest('.producto').dataset.id, Math.round(sl.scrollLeft / (sl.clientWidth || 1)));
+            }
         });
+
+        /* Al deslizar las fotos de una tarjeta, se marca la foto actual en las miniaturas */
+        document.getElementById('grid-productos').addEventListener('scroll', e => {
+            const sl = e.target;
+            if (!sl.classList || !sl.classList.contains('slides')) return;
+            const i = Math.round(sl.scrollLeft / (sl.clientWidth || 1));
+            const card = sl.closest('.producto');
+            card.querySelectorAll('.thumbs button').forEach((b, k) => b.classList.toggle('on', k === i));
+            const c = card.querySelector('.contador-fotos');
+            if (c) c.textContent = `${i + 1} / ${sl.children.length}`;
+        }, true);
 
         document.getElementById('filtros').addEventListener('click', e => {
             const b = e.target.closest('.filtro');
@@ -1043,10 +1082,53 @@
         function abrirContacto() { document.getElementById('modalContacto').classList.add('abierto'); }
         function cerrarContacto() { document.getElementById('modalContacto').classList.remove('abierto'); }
         function cerrarModal() { document.getElementById('modalFavoritos').classList.remove('abierto'); }
-        function ampliarImagen(ruta) {
-            document.getElementById('imgAmpliada').src = ruta;
-            document.getElementById('overlay').classList.add('abierto');
+        let galN = 0;
+        function abrirGaleria(id, inicio = 0) {
+            const p = porId[id];
+            if (!p) return;
+            const imgs = p.imgs;
+            galN = imgs.length;
+            document.getElementById('galSlides').innerHTML = imgs.map((src, i) =>
+                `<div class="gal-slide"><img src="${esc(src)}" alt="${esc(p.nombre)} ${i + 1}" draggable="false"></div>`).join('');
+            document.getElementById('galThumbs').innerHTML = imgs.map((src, i) =>
+                `<button type="button" data-i="${i}" aria-label="Ver foto ${i + 1}"><img src="${esc(src)}" alt=""></button>`).join('');
+            const ov = document.getElementById('overlay');
+            ov.classList.toggle('una', imgs.length < 2);
+            ov.classList.add('abierto');
+            const sl = document.getElementById('galSlides');
+            sl.style.scrollBehavior = 'auto';
+            sl.scrollLeft = inicio * sl.clientWidth;
+            sl.style.scrollBehavior = '';
+            galMarcar(inicio);
         }
+        function galMarcar(i) {
+            document.querySelectorAll('#galThumbs button').forEach((b, k) => b.classList.toggle('on', k === i));
+            document.getElementById('galCuenta').textContent = `${i + 1} / ${galN}`;
+            const t = document.querySelector('#galThumbs button.on');
+            if (t) t.scrollIntoView({ block: 'nearest', inline: 'center' });
+        }
+        function galIr(i) {
+            const sl = document.getElementById('galSlides');
+            i = Math.max(0, Math.min(galN - 1, i));
+            sl.scrollTo({ left: i * sl.clientWidth, behavior: 'smooth' });
+        }
+        document.getElementById('galSlides').addEventListener('scroll', e => {
+            const sl = e.currentTarget;
+            galMarcar(Math.round(sl.scrollLeft / (sl.clientWidth || 1)));
+        }, { passive: true });
+        const galActual = () => { const sl = document.getElementById('galSlides'); return Math.round(sl.scrollLeft / (sl.clientWidth || 1)); };
+        document.getElementById('galThumbs').addEventListener('click', e => {
+            e.stopPropagation();
+            const b = e.target.closest('button');
+            if (b) galIr(Number(b.dataset.i));
+        });
+        document.getElementById('galAnt').addEventListener('click', e => { e.stopPropagation(); galIr(galActual() - 1); });
+        document.getElementById('galSig').addEventListener('click', e => { e.stopPropagation(); galIr(galActual() + 1); });
+        document.addEventListener('keydown', e => {
+            if (!document.getElementById('overlay').classList.contains('abierto')) return;
+            if (e.key === 'ArrowLeft') galIr(galActual() - 1);
+            if (e.key === 'ArrowRight') galIr(galActual() + 1);
+        });
         function cerrarImagen() { document.getElementById('overlay').classList.remove('abierto'); }
         function abrirVideo(id) {
             const p = porId[id];
