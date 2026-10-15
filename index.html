@@ -291,7 +291,7 @@
             box-shadow: 0 2px 6px rgba(0,0,0,0.15);
         }
         .wishlist-btn:hover { transform: scale(1.1); }
-        .wishlist-btn.active { color: #e74c3c; }
+        .wishlist-btn.active { background: var(--dorado); color: #fff; }
 
         /* ---------- PERSONALIZACIÓN ---------- */
         .personaliza {
@@ -379,7 +379,7 @@
             box-shadow: 2px 2px 10px rgba(0,0,0,0.3);
         }
         .guia-flotante {
-            position: fixed; bottom: 95px; right: 20px;
+            position: fixed; bottom: 160px; right: 20px;
             background: var(--oscuro); color: white;
             padding: 15px 18px 15px 15px; border-radius: 12px; width: 230px;
             box-shadow: 0 10px 25px rgba(0,0,0,0.3);
@@ -461,12 +461,34 @@
         [hidden] { display: none !important; }
 
         /* ---------- ÍCONO DE ADMINISTRADOR ---------- */
-        .menu-navegacion a.nav-admin {
+        header a.nav-admin {
+            position: absolute; top: 12px; right: 12px; z-index: 2;
             display: inline-flex; align-items: center; justify-content: center;
-            width: 30px; height: 30px; padding: 0; border: 1px solid #6b6159; border-radius: 50%; color: var(--plata);
+            width: 50px; height: 50px; border: 2px solid var(--dorado); border-radius: 50%;
+            color: var(--dorado-claro); background: rgba(0,0,0,0.5); cursor: pointer; transition: 0.3s;
         }
-        .menu-navegacion a.nav-admin svg { width: 16px; height: 16px; fill: currentColor; }
-        .menu-navegacion a.nav-admin:hover { color: var(--dorado-claro); border-color: var(--dorado-claro); }
+        header a.nav-admin svg { width: 28px; height: 28px; fill: currentColor; }
+        header a.nav-admin:hover { background: var(--dorado); color: #fff; }
+        header.compacto a.nav-admin { top: 6px; width: 42px; height: 42px; }
+        header.compacto a.nav-admin svg { width: 23px; height: 23px; }
+        @media (max-width: 600px) { header { padding-left: 64px; padding-right: 64px; } }
+
+        /* ---------- CARRITO FLOTANTE ---------- */
+        .carrito-float {
+            position: fixed; right: 20px; bottom: 92px; width: 56px; height: 56px; border-radius: 50%;
+            background: var(--oscuro); color: var(--dorado-claro); border: 2px solid var(--dorado);
+            display: flex; align-items: center; justify-content: center; font-size: 24px;
+            z-index: 1001; cursor: pointer; box-shadow: 2px 2px 10px rgba(0,0,0,0.35); padding: 0;
+        }
+        .carrito-float:hover { background: var(--dorado); color: #fff; }
+        .carrito-float .num {
+            position: absolute; top: -6px; right: -6px; min-width: 24px; height: 24px; padding: 0 6px;
+            border-radius: 12px; background: #e74c3c; color: #fff; font: 700 0.8rem/24px var(--sans);
+            text-align: center; box-shadow: 0 1px 4px rgba(0,0,0,0.4);
+        }
+        .carrito-float.vacio-c .num { display: none; }
+        .carrito-float.salto { animation: salto 0.45s; }
+        @keyframes salto { 40% { transform: scale(1.25); } }
 
         /* ---------- PANEL DE ADMINISTRADOR ---------- */
         #adminOverlay { position: fixed; inset: 0; z-index: 5000; background: var(--oscuro); color: #fff; overflow-y: auto; font-family: var(--serif); font-size: 1.1rem; }
@@ -540,15 +562,11 @@
     </div>
 
     <header id="header-principal">
+        <a href="javascript:void(0)" class="nav-admin" onclick="abrirAdmin()" title="Administrador" aria-label="Acceso de administrador"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 12a5 5 0 1 0 0-10 5 5 0 0 0 0 10zm0 2c-4.4 0-8 2.2-8 5v3h16v-3c0-2.8-3.6-5-8-5z"/></svg></a>
         <div class="marca">LM <span>Custom Glow</span></div>
         <nav class="menu-navegacion" aria-label="Navegación principal">
-            <a href="#coleccion">Colección</a>
-            <a href="#personalizado">Personalizado</a>
-            <a href="#unas">Uñas</a>
-            <a href="#como-comprar">Cómo comprar</a>
-            <a href="javascript:void(0)" onclick="mostrarFavoritos()">❤️ Deseados <span id="cart-count" class="fav-count">0</span></a>
+            <a href="javascript:void(0)" onclick="mostrarFavoritos()"><i class="fas fa-shopping-cart"></i> Carrito <span id="cart-count" class="fav-count">0</span></a>
             <a href="javascript:void(0)" onclick="abrirContacto()">Contacto</a>
-            <a href="javascript:void(0)" class="nav-admin" onclick="abrirAdmin()" title="Administrador" aria-label="Acceso de administrador"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 12a5 5 0 1 0 0-10 5 5 0 0 0 0 10zm0 2c-4.4 0-8 2.2-8 5v3h16v-3c0-2.8-3.6-5-8-5z"/></svg></a>
         </nav>
     </header>
 
@@ -556,17 +574,13 @@
     <section class="hero">
         <img src="imagenes/logo-custom-glow.jpg" class="hero-logo" alt="LM Custom Glow - Joyería y Grabado Láser" width="1408" height="768">
         <p>Piezas únicas en acero inoxidable, grabadas con tu historia.</p>
-        <div class="hero-botones">
-            <a href="#coleccion" class="btn btn-oro">Ver colección</a>
-            <a href="https://wa.me/584125000498?text=%C2%A1Hola%20LM%20Custom%20Glow!%20Quiero%20personalizar%20una%20pieza." target="_blank" rel="noopener" class="btn btn-borde"><i class="fab fa-whatsapp"></i> Personalizar la mía</a>
-        </div>
         <div class="laser"></div>
     </section>
 
     <!-- GUÍA -->
     <div id="guiaPestaña" class="guia-flotante" role="status">
         <span class="cerrar-guia" onclick="this.parentElement.style.display='none'" aria-label="Cerrar">&times;</span>
-        <p><strong>✨ ¡Tip de compra!</strong><br>Toca el ❤️ en lo que te guste y envíanos tu lista por WhatsApp.</p>
+        <p><strong>✨ ¡Tip de compra!</strong><br>Toca el 🛒 en lo que te guste y envíanos tu pedido por WhatsApp.</p>
     </div>
 
     <!-- COLECCIÓN -->
@@ -628,9 +642,9 @@
         <h2 class="seccion-titulo">Tu confianza es nuestra prioridad</h2>
         <div class="grid-3">
             <div>
-                <i class="fas fa-heart"></i>
+                <i class="fas fa-shopping-cart"></i>
                 <h4>1. Elige</h4>
-                <p>Guarda tus favoritos en la lista de deseados.</p>
+                <p>Agrega tus piezas favoritas al carrito.</p>
             </div>
             <div>
                 <i class="fab fa-whatsapp"></i>
@@ -664,6 +678,7 @@
         <p>Envíos nacionales e internacionales</p>
     </footer>
 
+    <button type="button" id="carritoFlot" class="carrito-float vacio-c" onclick="mostrarFavoritos()" aria-label="Ver mi carrito"><i class="fas fa-shopping-cart"></i><span class="num" id="cart-flot-count">0</span></button>
     <a href="https://wa.me/584125000498" class="whatsapp-float" target="_blank" rel="noopener" aria-label="Escríbenos por WhatsApp"><i class="fab fa-whatsapp"></i></a>
 
     <!-- MODAL CONTACTO -->
@@ -678,14 +693,14 @@
     </div>
 
     <!-- MODAL FAVORITOS -->
-    <div id="modalFavoritos" class="modal-fav" role="dialog" aria-modal="true" aria-label="Mis deseados">
+    <div id="modalFavoritos" class="modal-fav" role="dialog" aria-modal="true" aria-label="Mi carrito">
         <div class="modal-content">
             <button class="close-modal" onclick="cerrarModal()" aria-label="Cerrar">&times;</button>
-            <h3>Mis deseados ❤️</h3>
+            <h3>Mi carrito 🛒</h3>
             <div id="listaFavoritos"></div>
-            <p id="msgVacio" class="vacio">Aún no tienes favoritos.</p>
+            <p id="msgVacio" class="vacio">Tu carrito está vacío.</p>
             <a href="javascript:void(0)" id="btnEnviarTodo" class="btn-enviar-lista" onclick="enviarListaWhatsApp()">
-                <i class="fab fa-whatsapp"></i> Enviar mi lista por WhatsApp
+                <i class="fab fa-whatsapp"></i> Enviar mi pedido por WhatsApp
             </a>
         </div>
     </div>
@@ -829,7 +844,7 @@
             grid.innerHTML = lista.map(p => `
                 <article class="producto" data-id="${p.id}">
                     <span class="etiqueta">${esc(p.tag || 'Personalizable')}</span>
-                    <button class="wishlist-btn" data-id="${p.id}" aria-label="Guardar ${esc(p.nombre)} en deseados"><i class="fas fa-heart"></i></button>
+                    <button class="wishlist-btn" data-id="${p.id}" aria-label="Agregar ${esc(p.nombre)} al carrito"><i class="fas fa-shopping-cart"></i></button>
                     <div class="imagen-box">
                         <img src="${esc(p.imgs[0])}" alt="${esc(p.nombre)}" loading="lazy" style="object-position:${esc(p.pos || 'center')}"
                              onerror="this.closest('.producto').remove()">
@@ -890,8 +905,14 @@
             document.getElementById('guiaPestaña').style.display = 'none';
         }
 
+        let ultimoN = wishlist.length;
         function actualizarUI() {
             document.getElementById('cart-count').textContent = wishlist.length;
+            document.getElementById('cart-flot-count').textContent = wishlist.length;
+            const cf = document.getElementById('carritoFlot');
+            cf.classList.toggle('vacio-c', wishlist.length === 0);
+            if (typeof ultimoN !== 'undefined' && wishlist.length > ultimoN) { cf.classList.remove('salto'); void cf.offsetWidth; cf.classList.add('salto'); }
+            ultimoN = wishlist.length;
             document.querySelectorAll('.wishlist-btn').forEach(btn => {
                 btn.classList.toggle('active', wishlist.includes(btn.dataset.id));
             });
@@ -922,7 +943,7 @@
 
         function enviarListaWhatsApp() {
             if (wishlist.length === 0) return;
-            let msg = "¡Hola LM Custom Glow! 👋 Me han gustado estos productos de tu catálogo:\n\n";
+            let msg = "¡Hola LM Custom Glow! 👋 Quiero pedir estos productos de tu catálogo:\n\n";
             wishlist.filter(id => porId[id]).forEach((id, i) => { msg += `${i + 1}. *${porId[id].nombre}*\n`; });
             msg += "\n¿Me das más información sobre precios y personalización?";
             window.open(waLink(msg), '_blank');
