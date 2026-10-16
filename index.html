@@ -838,6 +838,17 @@
                     <p class="adm-sub">Todo lo que se ve en tu catálogo. Marca “Agotado” cuando se acabe, o elimina lo que ya no vendes.</p>
                     <div id="adm-lista"></div>
                 </section>
+
+                <section class="adm-card">
+                    <h2>Copia de seguridad</h2>
+                    <p class="adm-sub">Guarda en tu teléfono o computador una copia de todos tus productos con sus fotos. Si algún día se pierde algo, puedes volver a cargarla.</p>
+                    <div class="adm-fila" style="margin-top:0">
+                        <button type="button" class="adm-btn adm-oro" id="adm-btnCopia">Descargar copia</button>
+                        <button type="button" class="adm-btn adm-borde" id="adm-btnRestaurar">Restaurar copia</button>
+                        <input type="file" id="adm-archivoCopia" accept=".json,application/json" hidden>
+                    </div>
+                    <p class="adm-sub" id="adm-estadoCopia" style="margin:14px 0 0"></p>
+                </section>
             </div>
         </div>
         <div id="adm-toast" role="status"></div>
@@ -1432,6 +1443,86 @@
                     if (err.status === 401) { salir(); return; }
                     A('errTasa').textContent = err.message;
                 } finally { A('btnTasa').disabled = false; }
+            });
+
+            /* ----- copia de seguridad ----- */
+            const aDataUrl = (blob) => new Promise((ok, mal) => { const r = new FileReader(); r.onload = () => ok(r.result); r.onerror = mal; r.readAsDataURL(blob); });
+            A('btnCopia').addEventListener('click', async () => {
+                const est = A('estadoCopia');
+                A('btnCopia').disabled = true;
+                try {
+                    await cargarTodo();
+                    const productosCopia = [];
+                    let n = 0;
+                    for (const p of listaDin) {
+                        est.textContent = `Preparando la copia… ${++n} de ${listaDin.length}`;
+                        const imgs = [];
+                        for (const u of p.imgs) {
+                            const r = await fetch(u);
+                            if (!r.ok) throw new Error('No pude leer una de las fotos. Intenta de nuevo.');
+                            imgs.push(await aDataUrl(await r.blob()));
+                        }
+                        productosCopia.push({ id: p.id, nombre: p.nombre, desc: p.desc || '', precio: p.precio || '', cat: p.cat, creado: p.creado || 0, imgs });
+                    }
+                    const copia = {
+                        tipo: 'copia-catalogo', version: 1, fecha: new Date().toISOString(),
+                        productos: productosCopia,
+                        ajustes: { ocultos: ajustes.ocultos, agotados: ajustes.agotados, precios: ajustes.precios, tasaModo: ajustes.tasaModo, tasaManual: ajustes.tasaManual }
+                    };
+                    const url = URL.createObjectURL(new Blob([JSON.stringify(copia)], { type: 'application/json' }));
+                    const a = document.createElement('a');
+                    a.href = url; a.download = `copia-catalogo-${new Date().toISOString().slice(0, 10)}.json`;
+                    document.body.appendChild(a); a.click(); a.remove();
+                    setTimeout(() => URL.revokeObjectURL(url), 5000);
+                    est.textContent = `Copia lista ✓ (${productosCopia.length} productos con fotos). Guárdala en un lugar seguro.`;
+                } catch (err) {
+                    est.textContent = '';
+                    aviso(err.message || 'No se pudo hacer la copia.', true);
+                } finally { A('btnCopia').disabled = false; }
+            });
+            A('btnRestaurar').addEventListener('click', () => A('archivoCopia').click());
+            A('archivoCopia').addEventListener('change', async (e) => {
+                const f = e.target.files[0];
+                e.target.value = '';
+                if (!f) return;
+                const est = A('estadoCopia');
+                let copia;
+                try { copia = JSON.parse(await f.text()); } catch (err) { copia = null; }
+                if (!copia || copia.tipo !== 'copia-catalogo' || !Array.isArray(copia.productos)) { aviso('Ese archivo no es una copia de seguridad de este catálogo.', true); return; }
+                if (!confirm(`Esta copia tiene ${copia.productos.length} productos. Se agregarán los que no estén ya en tu catálogo (los que tengan el mismo título se saltan). ¿Continuar?`)) return;
+                A('btnRestaurar').disabled = true; A('btnCopia').disabled = true;
+                try {
+                    await cargarTodo();
+                    const nombres = new Map(listaDin.map((p) => [p.nombre.trim().toLowerCase(), p.id]));
+                    const mapa = {};   // id de la copia → id actual
+                    let nuevos = 0, i = 0;
+                    const ordenados = [...copia.productos].sort((a, b) => (a.creado || 0) - (b.creado || 0));
+                    for (const p of ordenados) {
+                        est.textContent = `Restaurando… ${++i} de ${ordenados.length}`;
+                        const clave = String(p.nombre || '').trim().toLowerCase();
+                        if (nombres.has(clave)) { mapa[p.id] = nombres.get(clave); continue; }
+                        const r = await api('/productos', { method: 'POST', body: JSON.stringify({ nombre: p.nombre, desc: p.desc, precio: p.precio, cat: p.cat, nuevas: p.imgs }) });
+                        mapa[p.id] = r.id; nombres.set(clave, r.id); nuevos++;
+                    }
+                    const aj = copia.ajustes || {};
+                    const mapear = (id) => mapa[id] || id;
+                    const precios = {};
+                    for (const [k, v] of Object.entries(aj.precios || {})) precios[mapear(k)] = v;
+                    const cambios = {
+                        ocultos: [...new Set([...(ajustes.ocultos || []), ...(aj.ocultos || [])])],
+                        agotados: [...new Set([...(ajustes.agotados || []), ...(aj.agotados || []).map(mapear)])],
+                        precios: { ...precios, ...ajustes.precios },
+                    };
+                    if (aj.tasaModo === 'manual' && aj.tasaManual) { cambios.tasaModo = 'manual'; cambios.tasaManual = aj.tasaManual; }
+                    await guardarAjustes(cambios);
+                    est.textContent = `Listo ✓ Se restauraron ${nuevos} productos.`;
+                    aviso('Copia restaurada ✓');
+                } catch (err) {
+                    if (err.status === 401) { salir(); return; }
+                    est.textContent = '';
+                    aviso(err.message, true);
+                    cargarTodo();
+                } finally { A('btnRestaurar').disabled = false; A('btnCopia').disabled = false; }
             });
 
             A('lista').addEventListener('click', async (e) => {
