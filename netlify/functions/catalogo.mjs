@@ -1,6 +1,6 @@
 // Backend del catálogo: lista, agrega, edita y borra productos, y guarda sus fotos.
-// Todo se guarda en Netlify Blobs. Las acciones de escritura exigen la contraseña
-// que se define en la variable de entorno ADMIN_PASSWORD.
+// Todo se guarda en Netlify Blobs y, si se configura, se respalda solo en GitHub (carpeta /respaldo).
+// Las acciones de escritura exigen la contraseña que se define en la variable de entorno ADMIN_PASSWORD.
 import { getStore } from '@netlify/blobs';
 import { createHash, timingSafeEqual, randomBytes } from 'node:crypto';
 
@@ -30,7 +30,6 @@ function revisarClave(req) {
 }
 
 const texto = (valor, max) => String(valor ?? '').replace(/\s+/g, ' ').trim().slice(0, max);
-const textoLargo = (valor, max) => String(valor ?? '').replace(/\r/g, '').trim().slice(0, max);
 
 async function leerLista() {
   return (await catalogo().get('lista', { type: 'json' })) || [];
@@ -92,6 +91,113 @@ async function borrarFotos(urls) {
   }
 }
 
+// ---- Respaldo automático en GitHub ----------------------------------------------------------
+// Cada vez que el dueño publica/edita/borra algo, se copian las fotos nuevas y el listado de
+// productos a la carpeta  respaldo/  del repositorio (un solo commit por cambio).
+// Variables de entorno en Netlify:  GITHUB_TOKEN  (token con permiso "Contents: Read and write"),
+//   GITHUB_REPO = usuario/repositorio   y, si la rama no es "main",  GITHUB_BRANCH.
+const RESPALDO_DIR = 'respaldo';
+const respaldoConfig = () => {
+  const token = process.env.GITHUB_TOKEN;
+  const repo = (process.env.GITHUB_REPO || '').trim();
+  const rama = (process.env.GITHUB_BRANCH || 'main').trim();
+  const ok = !!token && /^[\w.-]+\/[\w.-]+$/.test(repo) && /^[\w./-]+$/.test(rama);
+  return { ok, token, repo, rama };
+};
+
+async function gh(cfg, ruta, opciones = {}) {
+  const r = await fetch(`https://api.github.com/repos/${cfg.repo}${ruta}`, {
+    ...opciones,
+    headers: {
+      authorization: `Bearer ${cfg.token}`,
+      accept: 'application/vnd.github+json',
+      'x-github-api-version': '2022-11-28',
+      'user-agent': 'catalogo-respaldo',
+      ...(opciones.body ? { 'content-type': 'application/json' } : {}),
+    },
+    signal: AbortSignal.timeout(9000),
+  });
+  if (!r.ok) {
+    const e = new Error(`GitHub respondió ${r.status} en ${opciones.method || 'GET'} ${ruta.split('?')[0]}`);
+    e.status = r.status;
+    throw e;
+  }
+  return r.status === 204 ? null : r.json();
+}
+
+async function guardarEstadoRespaldo(estado) {
+  try { await catalogo().setJSON('respaldo-estado', { ...estado, fecha: new Date().toISOString() }); } catch (e) { /* no es crítico */ }
+}
+
+// Sube a GitHub hasta `limite` fotos que falten y el listado actual. Devuelve cuántas quedan pendientes.
+async function sincronizarRespaldo(limite = 10, intento = 0) {
+  const cfg = respaldoConfig();
+  if (!cfg.ok) return { ok: false, sinConfigurar: true, pendientes: 0 };
+  try {
+    const lista = await leerLista();
+    const ajustes = await leerAjustes();
+    const claves = [...new Set(lista.flatMap((p) => p.imgs.map(claveDeUrl)).filter(Boolean))];
+
+    let existentes = new Set();
+    try {
+      const dir = await gh(cfg, `/contents/${RESPALDO_DIR}/fotos?ref=${encodeURIComponent(cfg.rama)}`);
+      existentes = new Set((Array.isArray(dir) ? dir : []).map((f) => f.name));
+    } catch (e) { if (e.status !== 404) throw e; }
+
+    const faltan = claves.filter((k) => !existentes.has(k));
+    const lote = faltan.slice(0, limite);
+
+    const ref = await gh(cfg, `/git/ref/heads/${encodeURIComponent(cfg.rama)}`);
+    const commitBase = await gh(cfg, `/git/commits/${ref.object.sha}`);
+
+    const entradas = [];
+    for (const k of lote) {
+      const datos = await fotos().get(k, { type: 'arrayBuffer' });
+      if (!datos) continue;
+      const blob = await gh(cfg, '/git/blobs', { method: 'POST', body: JSON.stringify({ content: Buffer.from(datos).toString('base64'), encoding: 'base64' }) });
+      entradas.push({ path: `${RESPALDO_DIR}/fotos/${k}`, mode: '100644', type: 'blob', sha: blob.sha });
+    }
+    const listado = {
+      aviso: 'Copia automática hecha desde el panel de administrador. No la edites a mano: se reescribe en cada cambio.',
+      productos: lista.map((p) => ({ ...p, imgs: p.imgs.map((u) => (claveDeUrl(u) ? `${RESPALDO_DIR}/fotos/${claveDeUrl(u)}` : u)) })),
+      ajustes,
+    };
+    const blobLista = await gh(cfg, '/git/blobs', { method: 'POST', body: JSON.stringify({ content: JSON.stringify(listado, null, 2), encoding: 'utf-8' }) });
+    entradas.push({ path: `${RESPALDO_DIR}/productos.json`, mode: '100644', type: 'blob', sha: blobLista.sha });
+
+    const arbol = await gh(cfg, '/git/trees', { method: 'POST', body: JSON.stringify({ base_tree: commitBase.tree.sha, tree: entradas }) });
+    const commit = await gh(cfg, '/git/commits', {
+      method: 'POST',
+      body: JSON.stringify({ message: `Respaldo del catálogo (${entradas.length - 1} foto(s) nueva(s)) [skip netlify]`, tree: arbol.sha, parents: [ref.object.sha] }),
+    });
+    await gh(cfg, `/git/refs/heads/${encodeURIComponent(cfg.rama)}`, { method: 'PATCH', body: JSON.stringify({ sha: commit.sha }) });
+
+    const pendientes = Math.max(0, faltan.length - lote.length);
+    await guardarEstadoRespaldo({ ok: true, fotosSubidas: entradas.length - 1, pendientes });
+    return { ok: true, subidas: entradas.length - 1, pendientes };
+  } catch (e) {
+    // Si alguien subió algo a la rama justo en ese momento, se reintenta una vez.
+    if (intento < 1 && (e.status === 422 || e.status === 409)) {
+      await new Promise((r) => setTimeout(r, 800));
+      return sincronizarRespaldo(limite, intento + 1);
+    }
+    console.error('Respaldo en GitHub falló:', e.message);
+    const mensaje = e.status === 401 || e.status === 403 ? 'GitHub no aceptó el token (revisa GITHUB_TOKEN y que tenga permiso de escritura en Contents).'
+      : e.status === 404 ? 'GitHub no encontró el repositorio o la rama (revisa GITHUB_REPO y GITHUB_BRANCH).'
+      : 'No se pudo conectar con GitHub. Se reintentará con el próximo cambio.';
+    await guardarEstadoRespaldo({ ok: false, error: mensaje });
+    return { ok: false, error: mensaje, pendientes: null };
+  }
+}
+
+// Después de cada cambio: respalda sin hacer esperar al dueño.
+function respaldarEnSegundoPlano(context) {
+  if (!respaldoConfig().ok) return;
+  const tarea = sincronizarRespaldo();
+  if (context && typeof context.waitUntil === 'function') context.waitUntil(tarea);
+  else tarea.catch(() => {});
+}
+
 // Valida los campos de texto y las fotos. `previo` es el producto existente (al editar).
 async function armarProducto(cuerpo, previo) {
   const nombre = texto(cuerpo.nombre, 80);
@@ -111,7 +217,6 @@ async function armarProducto(cuerpo, previo) {
     producto: {
       id: previo ? previo.id : `n${Date.now().toString(36)}${randomBytes(3).toString('hex')}`,
       nombre,
-      desc: textoLargo(cuerpo.desc, 400),
       precio: texto(cuerpo.precio, 20),
       cat,
       imgs: [...mantener, ...subidas],
@@ -121,7 +226,7 @@ async function armarProducto(cuerpo, previo) {
   };
 }
 
-export default async (req) => {
+export default async (req, context) => {
   try {
     const { pathname } = new URL(req.url);
     const ruta = pathname.replace(/\/+$/, '');
@@ -169,12 +274,20 @@ export default async (req) => {
 
     if (ruta === '/api/login' && metodo === 'POST') return json({ ok: true });
 
+    if (ruta === '/api/respaldo' && metodo === 'GET') {
+      const cfg = respaldoConfig();
+      const estado = (await catalogo().get('respaldo-estado', { type: 'json' })) || null;
+      return json({ configurado: cfg.ok, repo: cfg.ok ? cfg.repo : null, estado });
+    }
+    if (ruta === '/api/respaldo' && metodo === 'POST') return json(await sincronizarRespaldo(10));
+
     if (ruta === '/api/productos' && metodo === 'POST') {
       const lista = await leerLista();
       if (lista.length >= MAX_PRODUCTOS) return fallo('Llegaste al máximo de productos.');
       const { producto } = await armarProducto(await req.json(), null);
       lista.unshift(producto);
       await guardarLista(lista);
+      respaldarEnSegundoPlano(context);
       return json(producto, 201);
     }
 
@@ -201,6 +314,7 @@ export default async (req) => {
         }
       }
       await catalogo().setJSON('ajustes', aj);
+      respaldarEnSegundoPlano(context);
       return json(aj);
     }
 
@@ -220,6 +334,7 @@ export default async (req) => {
           delete aj.precios[borrado.id];
           await catalogo().setJSON('ajustes', aj);
         }
+        respaldarEnSegundoPlano(context);
         return json({ ok: true });
       }
 
@@ -227,6 +342,7 @@ export default async (req) => {
       lista[i] = producto;
       await guardarLista(lista);
       await borrarFotos(quitadas);
+      respaldarEnSegundoPlano(context);
       return json(producto);
     }
 
@@ -239,5 +355,5 @@ export default async (req) => {
 };
 
 export const config = {
-  path: ['/api/productos', '/api/productos/*', '/api/img/*', '/api/login', '/api/ajustes', '/api/tasa'],
+  path: ['/api/productos', '/api/productos/*', '/api/img/*', '/api/login', '/api/ajustes', '/api/tasa', '/api/respaldo'],
 };
