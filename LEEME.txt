@@ -103,5 +103,12 @@ COPIA DE SEGURIDAD MANUAL: en el panel, al final, "Descargar copia" guarda un ar
 "Restaurar copia" lo vuelve a cargar (no duplica los que ya existan). Recomienda al cliente descargarla de vez en cuando,
 y úsala tú antes de hacer cambios grandes o si un proyecto se recrea.
 
-LÍMITES DEL PANEL: hasta 150 productos, 4 fotos por producto (se reducen solas a ~1100 px).
+FOTOS Y VIDEO EN TODOS LOS PRODUCTOS: al crear o editar cualquier producto (incluidos los de fábrica) aparecen
+"Agregar foto" y "Agregar video" lado a lado. En los productos de fábrica, "Editar" permite cambiar título, precio,
+fotos (agregar, quitar, reemplazar) y video; "Volver al original" deshace esos cambios. Esos cambios viven en Netlify
+(no tocan index.html) y también se copian a GitHub (respaldo/fotos, respaldo/videos, respaldo/productos.json).
+Video: MP4 o WebM de hasta 5 MB (unos 40 segundos). Si pesa más, el panel intenta comprimirlo solo en el navegador
+(tarda lo que dura el video y puede perder el sonido); si aun así no baja de 5 MB, pide recortarlo.
+
+LÍMITES DEL PANEL: hasta 150 productos, 4 fotos y 1 video por producto (las fotos se reducen solas a ~1100 px).
 Netlify gratis es suficiente para este uso.

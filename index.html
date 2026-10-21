@@ -571,6 +571,8 @@
         .adm-foto .adm-principal { position: absolute; left: 0; bottom: 0; right: 0; background: rgba(184,134,11,0.9); font-family: var(--sans); font-size: 0.55rem; letter-spacing: 1px; text-align: center; padding: 3px; text-transform: uppercase; }
         .adm-agregar { aspect-ratio: 1; border: 1px dashed var(--dorado); border-radius: 3px; background: transparent; color: var(--dorado-claro); font-family: var(--sans); font-size: 0.65rem; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; }
         .adm-agregar span { font-size: 1.8rem; line-height: 1; }
+        .adm-foto video { width: 100%; height: 100%; object-fit: cover; display: block; background: #000; }
+        .adm-foto .adm-etvideo { position: absolute; left: 0; bottom: 0; right: 0; background: rgba(13,11,10,0.9); color: var(--dorado-claro); font-family: var(--sans); font-size: 0.55rem; letter-spacing: 1px; text-align: center; padding: 3px; text-transform: uppercase; }
         .adm-agregar:hover { background: rgba(184,134,11,0.12); }
         .adm-item { display: flex; gap: 14px; align-items: center; padding: 14px 0; border-top: 1px solid #2c2622; }
         .adm-item:first-child { border-top: none; }
@@ -819,15 +821,19 @@
                             <option value="collares">Collares &amp; Sets</option>
                         </select>
 
-                        <label>Fotos <small>(hasta 4 · la primera es la principal)</small></label>
+                        </div>
+
+                        <label>Fotos y video <small>(hasta 4 fotos · la primera es la principal · video opcional de hasta 5 MB, unos 40 segundos)</small></label>
                         <div class="adm-fotos" id="adm-fotos"></div>
                         <input type="file" id="adm-archivos" accept="image/*" multiple hidden>
-                        </div>
+                        <input type="file" id="adm-archivoVideo" accept="video/*" hidden>
+                        <p class="adm-sub" id="adm-estadoVideo" style="margin:8px 0 0"></p>
 
                         <p class="adm-error" id="adm-errForm" role="alert"></p>
                         <div class="adm-fila">
                             <button type="submit" class="adm-btn adm-oro" id="adm-btnGuardar">Publicar producto</button>
                             <button type="button" class="adm-btn adm-borde" id="adm-btnCancelar" hidden>Cancelar edición</button>
+                            <button type="button" class="adm-btn adm-peligro" id="adm-btnOriginal" hidden>Volver al original</button>
                         </div>
                     </form>
                 </section>
@@ -903,6 +909,9 @@
               precio: null, tag: 'Con video' }
         ];
 
+        // Copia de los productos de fábrica tal como vienen en este archivo (para poder volver al original).
+        const ORIGINALES = JSON.parse(JSON.stringify(productos));
+
         const miTelefono = "584125000498";
         let porId = Object.fromEntries(productos.map(p => [p.id, p]));
         const esc = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -920,7 +929,7 @@
         }
 
         /* ---------- AJUSTES (agotados, ocultos, precios) Y TASA DEL DÍA ---------- */
-        let ajustes = { ocultos: [], agotados: [], precios: {}, tasaModo: 'auto', tasaManual: null };
+        let ajustes = { ocultos: [], agotados: [], precios: {}, fijos: {}, tasaModo: 'auto', tasaManual: null };
         let tasa = null; // { valor, fuente, fecha }
         const agotado = (id) => ajustes.agotados.includes(id);
         const disponible = (id) => !!porId[id] && !ajustes.ocultos.includes(id) && !agotado(id);
@@ -1177,6 +1186,23 @@
 
         /* ---------- PRODUCTOS DEL SERVIDOR, AJUSTES Y TASA ---------- */
         let listaDin = [];
+        // Los productos de fábrica pueden tener título, fotos y video cambiados desde el panel.
+        function aplicarCambiosFijos() {
+            for (const p of productos) {
+                if (p.dinamico) continue;
+                const o = ORIGINALES.find((x) => x.id === p.id);
+                if (!o) continue;
+                p.nombre = o.nombre; p.imgs = [...o.imgs]; p.video = o.video; p.poster = o.poster;
+                const f = (ajustes.fijos || {})[p.id];
+                if (!f) continue;
+                if (f.nombre) p.nombre = f.nombre;
+                if (Array.isArray(f.imgs) && f.imgs.length) p.imgs = [...f.imgs];
+                if (f.video !== undefined) {
+                    p.video = f.video || undefined;
+                    p.poster = !f.video ? undefined : (f.video === o.video ? o.poster : p.imgs[0]);
+                }
+            }
+        }
         async function pedir(ruta) {
             try { const r = await fetch(ruta, { cache: 'no-store' }); return r.ok ? await r.json() : null; }
             catch (e) { return null; } // sin servidor (por ejemplo, abierto desde el computador): solo se ven los productos fijos
@@ -1184,11 +1210,12 @@
         async function cargarTodo() {
             const [lista, aj, t] = await Promise.all([pedir('/api/productos'), pedir('/api/ajustes'), pedir('/api/tasa')]);
             if (aj && typeof aj === 'object') {
-                ajustes = { ocultos: aj.ocultos || [], agotados: aj.agotados || [], precios: aj.precios || {},
+                ajustes = { ocultos: aj.ocultos || [], agotados: aj.agotados || [], precios: aj.precios || {}, fijos: aj.fijos || {},
                             tasaModo: aj.tasaModo || 'auto', tasaManual: aj.tasaManual || null };
             }
             tasa = t && t.valor ? t : null;
             pintarTasa();
+            aplicarCambiosFijos();
             if (Array.isArray(lista)) {
                 listaDin = lista;
                 const reciente = Date.now() - 14 * 24 * 3600 * 1000;
@@ -1196,7 +1223,7 @@
                     .filter(d => d && d.id && d.nombre && Array.isArray(d.imgs) && d.imgs.length)
                     .map(d => ({
                         id: d.id, dinamico: true, creado: d.creado || 0, cat: [d.cat], nombre: d.nombre,
-                        precio: d.precio || null, imgs: d.imgs,
+                        precio: d.precio || null, imgs: d.imgs, video: d.video || undefined, poster: d.video ? d.imgs[0] : undefined,
                         tag: d.creado > reciente ? 'Nuevo' : 'Personalizable'
                     }));
                 for (let i = productos.length - 1; i >= 0; i--) { if (productos[i].dinamico) productos.splice(i, 1); }
@@ -1219,7 +1246,9 @@
             try { clave = sessionStorage.getItem('lm_admin') || ''; } catch (e) {}
             let fotosAdm = [];      // { url } (ya guardada) o { data } (nueva)
             let editandoId = null;
-            let editandoFijo = null; // id de un producto de fábrica (solo se cambia su precio)
+            let editandoFijo = null; // id de un producto de fábrica que se está editando
+            let videoAdm = null;     // { url } (ya guardado o de fábrica) o { blob } (nuevo, se sube al guardar)
+            const MAX_VIDEO = 4_900_000;
             let lista = [];
 
             function aviso(texto, mal = false) {
@@ -1329,12 +1358,101 @@
                         <button type="button" data-quitar="${i}" aria-label="Quitar foto ${i + 1}">&times;</button>
                         ${i === 0 ? '<span class="adm-principal">Principal</span>' : ''}
                     </div>`).join('') +
-                    (fotosAdm.length < MAX_FOTOS ? '<button type="button" class="adm-agregar" id="adm-btnFoto"><span>+</span>Agregar foto</button>' : '');
+                    (videoAdm ? `
+                    <div class="adm-foto">
+                        <video src="${esc(videoAdm.url || videoAdm.vista)}#t=0.1" muted playsinline preload="metadata"></video>
+                        <button type="button" data-quitar-video="1" aria-label="Quitar el video">&times;</button>
+                        <span class="adm-etvideo">Video</span>
+                    </div>` : '') +
+                    (fotosAdm.length < MAX_FOTOS ? '<button type="button" class="adm-agregar" id="adm-btnFoto"><span>+</span>Agregar foto</button>' : '') +
+                    (!videoAdm ? '<button type="button" class="adm-agregar" id="adm-btnVideo"><span>+</span>Agregar video</button>' : '');
             }
+
+            /* ----- video: se acepta MP4/WebM de hasta 5 MB; si pesa más se intenta comprimir en el propio teléfono ----- */
+            function recomprimirVideo(archivo, progreso) {
+                return new Promise((ok, mal) => {
+                    if (!window.MediaRecorder || !HTMLCanvasElement.prototype.captureStream) {
+                        mal(new Error('Este navegador no puede comprimir el video. Usa uno de hasta 5 MB.')); return;
+                    }
+                    const url = URL.createObjectURL(archivo);
+                    const v = document.createElement('video');
+                    v.muted = true; v.playsInline = true; v.preload = 'auto'; v.src = url;
+                    const limpiar = () => URL.revokeObjectURL(url);
+                    v.onerror = () => { limpiar(); mal(new Error('No pude leer ese video. Prueba con otro (MP4).')); };
+                    v.onloadedmetadata = () => {
+                        if (!isFinite(v.duration) || v.duration > 45) { limpiar(); mal(new Error('El video dura demasiado: máximo unos 40 segundos. Recórtalo e inténtalo de nuevo.')); return; }
+                        const k = Math.min(1, 640 / Math.max(v.videoWidth, v.videoHeight));
+                        const c = document.createElement('canvas');
+                        c.width = Math.max(2, Math.round(v.videoWidth * k) & ~1);
+                        c.height = Math.max(2, Math.round(v.videoHeight * k) & ~1);
+                        const x = c.getContext('2d');
+                        const flujo = c.captureStream(24);
+                        try { (v.captureStream ? v.captureStream() : v.mozCaptureStream()).getAudioTracks().forEach((t) => flujo.addTrack(t)); } catch (e) { /* sin sonido */ }
+                        const tipo = ['video/webm;codecs=vp9', 'video/webm;codecs=vp8', 'video/webm', 'video/mp4'].find((t) => MediaRecorder.isTypeSupported(t));
+                        if (!tipo) { limpiar(); mal(new Error('Este navegador no puede comprimir el video. Usa uno de hasta 5 MB.')); return; }
+                        const rec = new MediaRecorder(flujo, { mimeType: tipo, videoBitsPerSecond: 700000, audioBitsPerSecond: 64000 });
+                        const trozos = [];
+                        rec.ondataavailable = (e) => { if (e.data && e.data.size) trozos.push(e.data); };
+                        rec.onstop = () => { limpiar(); ok(new Blob(trozos, { type: tipo.split(';')[0] })); };
+                        let vivo = true;
+                        const pintar = () => {
+                            if (!vivo) return;
+                            x.drawImage(v, 0, 0, c.width, c.height);
+                            progreso(Math.min(99, Math.round(100 * v.currentTime / v.duration)));
+                            requestAnimationFrame(pintar);
+                        };
+                        v.onended = () => { vivo = false; setTimeout(() => rec.stop(), 150); };
+                        rec.start(500);
+                        v.play().then(pintar).catch(() => { vivo = false; limpiar(); mal(new Error('No pude procesar el video. Prueba con uno más corto.')); });
+                    };
+                });
+            }
+            async function prepararVideo(archivo) {
+                const est = A('estadoVideo');
+                const tipoOk = /^video\/(mp4|webm)$/.test(archivo.type);
+                let blob = archivo;
+                if (!tipoOk || archivo.size > MAX_VIDEO) {
+                    est.textContent = 'Comprimiendo el video… 0 % (no cierres esta pantalla)';
+                    blob = await recomprimirVideo(archivo, (n) => { est.textContent = `Comprimiendo el video… ${n} % (no cierres esta pantalla)`; });
+                }
+                if (blob.size > MAX_VIDEO) {
+                    throw new Error(`El video pesa ${(blob.size / 1e6).toFixed(1)} MB y el máximo es 5 MB. Recórtalo o mándatelo por WhatsApp y descarga esa versión (viene comprimida).`);
+                }
+                return blob;
+            }
+            const aBase64 = (blob) => new Promise((ok, mal) => { const r = new FileReader(); r.onload = () => ok(String(r.result).split(',')[1]); r.onerror = mal; r.readAsDataURL(blob); });
+            async function subirVideo(blob, avance) {
+                const id = [...crypto.getRandomValues(new Uint8Array(12))].map((b) => b.toString(16).padStart(2, '0')).join('');
+                const TROZO = 1_500_000;
+                const total = Math.max(1, Math.ceil(blob.size / TROZO));
+                const tipo = /webm/.test(blob.type) ? 'webm' : 'mp4';
+                let r = null;
+                for (let i = 0; i < total; i++) {
+                    if (avance) avance(i + 1, total);
+                    const data = await aBase64(blob.slice(i * TROZO, (i + 1) * TROZO));
+                    r = await api('/video-parte', { method: 'POST', body: JSON.stringify({ id, n: i, total, tipo, data }) });
+                }
+                if (!r || !r.url) throw new Error('El video no se pudo subir. Intenta de nuevo.');
+                return r.url;
+            }
+            A('archivoVideo').addEventListener('change', async (e) => {
+                const f = e.target.files[0];
+                e.target.value = '';
+                if (!f) return;
+                A('errForm').textContent = '';
+                try {
+                    const blob = await prepararVideo(f);
+                    videoAdm = { blob, vista: URL.createObjectURL(blob) };
+                    A('estadoVideo').textContent = `Video listo (${(blob.size / 1e6).toFixed(1)} MB). Se sube cuando toques el botón de guardar.`;
+                    dibujarFotos();
+                } catch (err) { A('estadoVideo').textContent = ''; A('errForm').textContent = err.message; }
+            });
             A('fotos').addEventListener('click', (e) => {
                 const q = e.target.closest('[data-quitar]');
                 if (q) { fotosAdm.splice(Number(q.dataset.quitar), 1); dibujarFotos(); return; }
+                if (e.target.closest('[data-quitar-video]')) { videoAdm = null; A('estadoVideo').textContent = ''; dibujarFotos(); return; }
                 if (e.target.closest('#adm-btnFoto')) A('archivos').click();
+                if (e.target.closest('#adm-btnVideo')) A('archivoVideo').click();
             });
             A('archivos').addEventListener('change', async (e) => {
                 const elegidos = [...e.target.files].slice(0, MAX_FOTOS - fotosAdm.length);
@@ -1351,7 +1469,9 @@
             function limpiarForm() {
                 editandoId = null;
                 editandoFijo = null;
-                A('nombre').readOnly = false;
+                videoAdm = null;
+                A('estadoVideo').textContent = '';
+                A('btnOriginal').hidden = true;
                 A('completos').hidden = false;
                 A('formProducto').reset();
                 fotosAdm = [];
@@ -1363,47 +1483,54 @@
                 A('errForm').textContent = '';
             }
             A('btnCancelar').addEventListener('click', limpiarForm);
-
-            A('formProducto').addEventListener('submit', async (e) => {
-                e.preventDefault();
-                A('errForm').textContent = '';
-                if (editandoFijo) {
-                    const p = porId[editandoFijo];
-                    const v = A('precio').value.trim();
-                    const precios = { ...ajustes.precios };
-                    if (v) precios[editandoFijo] = v; else delete precios[editandoFijo];
-                    A('btnGuardar').disabled = true;
-                    try {
-                        await guardarAjustes({ precios });
-                        limpiarForm();
-                        aviso(`Precio de “${p ? p.nombre : 'producto'}” guardado ✓`);
-                    } catch (err) {
-                        if (err.status === 401) { salir(); return; }
-                        A('errForm').textContent = err.message;
-                    } finally { A('btnGuardar').disabled = false; }
-                    return;
-                }
-                const nombre = A('nombre').value.trim();
-                if (!nombre) { A('errForm').textContent = 'Escribe el título del producto.'; A('nombre').focus(); return; }
-                if (!A('cat').value) { A('errForm').textContent = 'Elige una categoría.'; A('cat').focus(); return; }
-                if (!fotosAdm.length) { A('errForm').textContent = 'Agrega al menos una foto.'; return; }
-                const cuerpo = {
-                    nombre, precio: A('precio').value, cat: A('cat').value,
-                    mantener: fotosAdm.filter((f) => f.url).map((f) => f.url),
-                    nuevas: fotosAdm.filter((f) => f.data).map((f) => f.data),
-                };
-                const edicion = editandoId;
-                A('btnGuardar').disabled = true;
-                A('btnGuardar').textContent = 'Guardando…';
+            A('btnOriginal').addEventListener('click', async () => {
+                const id = editandoFijo;
+                if (!id || !confirm('¿Volver a las fotos, el video y el título originales de este producto? Se borran los que subiste.')) return;
+                A('btnOriginal').disabled = true;
                 try {
-                    await api(edicion ? `/productos/${edicion}` : '/productos', { method: edicion ? 'PUT' : 'POST', body: JSON.stringify(cuerpo) });
+                    await api(`/fijos/${id}`, { method: 'DELETE' });
                     limpiarForm();
-                    aviso(edicion ? 'Cambios guardados ✓' : 'Producto publicado ✓ Ya está en tu catálogo');
+                    aviso('Producto restaurado al original ✓');
                     cargarTodo();
                 } catch (err) {
                     if (err.status === 401) { salir(); return; }
                     A('errForm').textContent = err.message;
-                    A('btnGuardar').textContent = edicion ? 'Guardar cambios' : 'Publicar producto';
+                } finally { A('btnOriginal').disabled = false; }
+            });
+
+            A('formProducto').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                A('errForm').textContent = '';
+                const nombre = A('nombre').value.trim();
+                if (!nombre) { A('errForm').textContent = 'Escribe el título del producto.'; A('nombre').focus(); return; }
+                if (!editandoFijo && !A('cat').value) { A('errForm').textContent = 'Elige una categoría.'; A('cat').focus(); return; }
+                if (!fotosAdm.length) { A('errForm').textContent = 'Agrega al menos una foto.'; return; }
+                const fijo = editandoFijo;
+                const cuerpo = {
+                    nombre, precio: A('precio').value,
+                    mantener: fotosAdm.filter((f) => f.url).map((f) => f.url),
+                    nuevas: fotosAdm.filter((f) => f.data).map((f) => f.data),
+                    video: '',
+                };
+                if (!fijo) cuerpo.cat = A('cat').value;
+                const edicion = editandoId;
+                const textoBoton = (fijo || edicion) ? 'Guardar cambios' : 'Publicar producto';
+                A('btnGuardar').disabled = true;
+                A('btnGuardar').textContent = 'Guardando…';
+                try {
+                    if (videoAdm && videoAdm.blob) {
+                        cuerpo.video = await subirVideo(videoAdm.blob, (i, n) => { A('btnGuardar').textContent = `Subiendo video… ${i} de ${n}`; });
+                        A('btnGuardar').textContent = 'Guardando…';
+                    } else if (videoAdm) cuerpo.video = videoAdm.url;
+                    if (fijo) await api(`/fijos/${fijo}`, { method: 'PUT', body: JSON.stringify(cuerpo) });
+                    else await api(edicion ? `/productos/${edicion}` : '/productos', { method: edicion ? 'PUT' : 'POST', body: JSON.stringify(cuerpo) });
+                    limpiarForm();
+                    aviso((fijo || edicion) ? 'Cambios guardados ✓' : 'Producto publicado ✓ Ya está en tu catálogo');
+                    cargarTodo();
+                } catch (err) {
+                    if (err.status === 401) { salir(); return; }
+                    A('errForm').textContent = err.message;
+                    A('btnGuardar').textContent = textoBoton;
                 } finally { A('btnGuardar').disabled = false; }
             });
 
@@ -1473,6 +1600,12 @@
 
             /* ----- copia de seguridad ----- */
             const aDataUrl = (blob) => new Promise((ok, mal) => { const r = new FileReader(); r.onload = () => ok(r.result); r.onerror = mal; r.readAsDataURL(blob); });
+            const archivoADataUrl = async (u) => {
+                const r = await fetch(u);
+                if (!r.ok) throw new Error('No pude leer una de las fotos o videos. Intenta de nuevo.');
+                return aDataUrl(await r.blob());
+            };
+            const dataUrlABlob = async (d) => (await fetch(d)).blob();
             A('btnCopia').addEventListener('click', async () => {
                 const est = A('estadoCopia');
                 A('btnCopia').disabled = true;
@@ -1483,17 +1616,22 @@
                     for (const p of listaDin) {
                         est.textContent = `Preparando la copia… ${++n} de ${listaDin.length}`;
                         const imgs = [];
-                        for (const u of p.imgs) {
-                            const r = await fetch(u);
-                            if (!r.ok) throw new Error('No pude leer una de las fotos. Intenta de nuevo.');
-                            imgs.push(await aDataUrl(await r.blob()));
-                        }
-                        productosCopia.push({ id: p.id, nombre: p.nombre, precio: p.precio || '', cat: p.cat, creado: p.creado || 0, imgs });
+                        for (const u of p.imgs) imgs.push(await archivoADataUrl(u));
+                        const video = p.video ? await archivoADataUrl(p.video) : '';
+                        productosCopia.push({ id: p.id, nombre: p.nombre, precio: p.precio || '', cat: p.cat, creado: p.creado || 0, imgs, video });
+                    }
+                    // Productos de fábrica con fotos, video o título cambiados desde el panel
+                    const fijosCopia = {};
+                    for (const [id, f] of Object.entries(ajustes.fijos || {})) {
+                        est.textContent = 'Preparando la copia… productos de fábrica';
+                        const imgs = [];
+                        for (const u of f.imgs || []) imgs.push(u.startsWith('/api/') ? await archivoADataUrl(u) : u);
+                        fijosCopia[id] = { nombre: f.nombre, imgs, video: f.video ? (f.video.startsWith('/api/') ? await archivoADataUrl(f.video) : f.video) : '' };
                     }
                     const copia = {
-                        tipo: 'copia-catalogo', version: 1, fecha: new Date().toISOString(),
+                        tipo: 'copia-catalogo', version: 2, fecha: new Date().toISOString(),
                         productos: productosCopia,
-                        ajustes: { ocultos: ajustes.ocultos, agotados: ajustes.agotados, precios: ajustes.precios, tasaModo: ajustes.tasaModo, tasaManual: ajustes.tasaManual }
+                        ajustes: { ocultos: ajustes.ocultos, agotados: ajustes.agotados, precios: ajustes.precios, fijos: fijosCopia, tasaModo: ajustes.tasaModo, tasaManual: ajustes.tasaManual }
                     };
                     const url = URL.createObjectURL(new Blob([JSON.stringify(copia)], { type: 'application/json' }));
                     const a = document.createElement('a');
@@ -1562,8 +1700,20 @@
                         est.textContent = `Restaurando… ${++i} de ${ordenados.length}`;
                         const clave = String(p.nombre || '').trim().toLowerCase();
                         if (nombres.has(clave)) { mapa[p.id] = nombres.get(clave); continue; }
-                        const r = await api('/productos', { method: 'POST', body: JSON.stringify({ nombre: p.nombre, precio: p.precio, cat: p.cat, nuevas: p.imgs }) });
+                        const video = p.video ? await subirVideo(await dataUrlABlob(p.video)) : '';
+                        const r = await api('/productos', { method: 'POST', body: JSON.stringify({ nombre: p.nombre, precio: p.precio, cat: p.cat, nuevas: p.imgs, video }) });
                         mapa[p.id] = r.id; nombres.set(clave, r.id); nuevos++;
+                    }
+                    // Productos de fábrica modificados (solo si aquí todavía no se han tocado)
+                    for (const [id, f] of Object.entries((copia.ajustes || {}).fijos || {})) {
+                        if ((ajustes.fijos || {})[id] || !porId[id]) continue;
+                        est.textContent = 'Restaurando productos de fábrica…';
+                        const video = f.video && f.video.startsWith('data:') ? await subirVideo(await dataUrlABlob(f.video)) : (f.video || '');
+                        await api(`/fijos/${id}`, { method: 'PUT', body: JSON.stringify({
+                            nombre: f.nombre || porId[id].nombre,
+                            mantener: (f.imgs || []).filter((u) => !u.startsWith('data:')),
+                            nuevas: (f.imgs || []).filter((u) => u.startsWith('data:')),
+                            video }) });
                     }
                     const aj = copia.ajustes || {};
                     const mapear = (id) => mapa[id] || id;
@@ -1606,6 +1756,7 @@
                     A('precio').value = p.precio || '';
                     A('cat').value = p.cat;
                     fotosAdm = p.imgs.map((url) => ({ url }));
+                    videoAdm = p.video ? { url: p.video } : null;
                     dibujarFotos();
                     A('tituloForm').textContent = 'Editar producto';
                     A('subForm').textContent = 'Cambia lo que necesites y toca “Guardar cambios”.';
@@ -1628,15 +1779,17 @@
                     limpiarForm();
                     editandoFijo = p.id;
                     A('nombre').value = p.nombre;
-                    A('nombre').readOnly = true;
                     A('precio').value = String(precioDe(p)).replace(/^€/, '');
-                    A('completos').hidden = true;
-                    A('tituloForm').textContent = 'Editar precio';
-                    A('subForm').textContent = 'Cambia el precio en euros (€). Los bolívares se calculan solos con la tasa del día.';
-                    A('btnGuardar').textContent = 'Guardar precio';
+                    A('completos').hidden = true;   // los productos de fábrica conservan su categoría
+                    fotosAdm = p.imgs.map((url) => ({ url }));
+                    videoAdm = p.video ? { url: p.video } : null;
+                    dibujarFotos();
+                    A('tituloForm').textContent = 'Editar producto';
+                    A('subForm').textContent = 'Cambia el título, el precio, las fotos o el video y toca “Guardar cambios”.';
+                    A('btnGuardar').textContent = 'Guardar cambios';
                     A('btnCancelar').hidden = false;
+                    A('btnOriginal').hidden = !(ajustes.fijos && ajustes.fijos[p.id]);
                     A('formProducto').scrollIntoView({ behavior: 'smooth', block: 'start' });
-                    setTimeout(() => A('precio').focus(), 400);
                 }
                 if (bo) {
                     const p = porId[bo.dataset.borrar];
