@@ -547,7 +547,7 @@
         .adm-sub { margin: 0 0 20px; color: #bbb; font-style: italic; }
         .adm-card label { display: block; font-family: var(--sans); font-size: 0.68rem; letter-spacing: 2px; text-transform: uppercase; color: var(--plata); margin: 18px 0 6px; }
         .adm-card label small { text-transform: none; letter-spacing: 0; color: #999; font-size: 0.75rem; }
-        .adm-card input[type=text], .adm-card input[type=password], .adm-card textarea, .adm-card select {
+        .adm-card input[type=text], .adm-card input[type=search], .adm-card input[type=password], .adm-card textarea, .adm-card select {
             width: 100%; padding: 13px 14px; font-size: 1rem; font-family: var(--sans); color: #fff;
             background: #0d0b0a; border: 1px solid #3a322c; border-radius: 3px;
         }
@@ -562,6 +562,13 @@
         .adm-peligro:hover { background: #e74c3c; color: #fff; border-color: #e74c3c; }
         .adm-btn:disabled { opacity: 0.55; cursor: wait; }
         .adm-chico { padding: 9px 14px; font-size: 0.62rem; }
+        .adm-filtros { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 14px 0 6px; }
+        @media (max-width: 560px) { .adm-filtros { grid-template-columns: 1fr; } }
+        .adm-cats { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0 4px; }
+        .adm-chip { display: inline-flex; align-items: center; gap: 8px; background: #0d0b0a; border: 1px solid #3a322c; border-radius: 20px; padding: 6px 6px 6px 14px; font-family: var(--sans); font-size: 0.82rem; color: #fff; }
+        .adm-chip small { color: #999; font-size: 0.7rem; }
+        .adm-chip button { width: 26px; height: 26px; border-radius: 50%; border: none; background: #3a322c; color: #fff; font-size: 1.1rem; line-height: 1; cursor: pointer; padding: 0 0 2px; }
+        .adm-chip button:hover { background: #e74c3c; }
         .adm-fila { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 24px; }
         .adm-error { color: #ff8a7d; font-family: var(--sans); font-size: 0.85rem; margin: 12px 0 0; min-height: 1.2em; }
         .adm-fotos { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 10px; margin-top: 4px; }
@@ -802,6 +809,18 @@
                 </section>
 
                 <section class="adm-card">
+                    <h2>Categorías</h2>
+                    <p class="adm-sub">Son los grupos del catálogo (Parejas, Llaveros…). Agrega las que necesites o quita las que ya no uses.</p>
+                    <div class="adm-cats" id="adm-listaCats"></div>
+                    <form id="adm-formCat" novalidate>
+                        <label for="adm-nuevaCat">Nueva categoría</label>
+                        <input type="text" id="adm-nuevaCat" maxlength="30" placeholder="Ej: Aretes">
+                        <p class="adm-error" id="adm-errCat" role="alert"></p>
+                        <div class="adm-fila" style="margin-top:14px"><button type="submit" class="adm-btn adm-oro" id="adm-btnCat">Agregar categoría</button></div>
+                    </form>
+                </section>
+
+                <section class="adm-card">
                     <h2 id="adm-tituloForm">Nuevo producto</h2>
                     <p class="adm-sub" id="adm-subForm">Llena los datos y toca “Publicar”. Aparece en el catálogo al instante.</p>
                     <form id="adm-formProducto" novalidate>
@@ -813,13 +832,7 @@
 
                         <div id="adm-completos">
                         <label for="adm-cat">Categoría</label>
-                        <select id="adm-cat">
-                            <option value="">Elige una…</option>
-                            <option value="parejas">Parejas</option>
-                            <option value="caballero">Caballero</option>
-                            <option value="llaveros">Llaveros</option>
-                            <option value="collares">Collares &amp; Sets</option>
-                        </select>
+                        <select id="adm-cat"><option value="">Elige una…</option></select>
 
                         </div>
 
@@ -841,6 +854,11 @@
                 <section class="adm-card">
                     <h2>Mis productos</h2>
                     <p class="adm-sub">Todo lo que se ve en tu catálogo. Marca “Agotado” cuando se acabe, o elimina lo que ya no vendes.</p>
+                    <div class="adm-filtros">
+                        <input type="search" id="adm-buscar" placeholder="Buscar por nombre…" autocomplete="off" aria-label="Buscar producto">
+                        <select id="adm-filtroCat" aria-label="Filtrar por categoría"></select>
+                    </div>
+                    <p class="adm-sub" id="adm-conteo" style="margin:0 0 6px"></p>
                     <div id="adm-lista"></div>
                 </section>
 
@@ -929,7 +947,7 @@
         }
 
         /* ---------- AJUSTES (agotados, ocultos, precios) Y TASA DEL DÍA ---------- */
-        let ajustes = { ocultos: [], agotados: [], precios: {}, fijos: {}, tasaModo: 'auto', tasaManual: null };
+        let ajustes = { ocultos: [], agotados: [], precios: {}, fijos: {}, categorias: null, tasaModo: 'auto', tasaManual: null };
         let tasa = null; // { valor, fuente, fecha }
         const agotado = (id) => ajustes.agotados.includes(id);
         const disponible = (id) => !!porId[id] && !ajustes.ocultos.includes(id) && !agotado(id);
@@ -956,7 +974,15 @@
             return `https://wa.me/${miTelefono}?text=${encodeURIComponent(texto)}`;
         }
 
-        const GRUPOS = [['parejas', 'Parejas'], ['caballero', 'Caballero'], ['llaveros', 'Llaveros'], ['collares', 'Collares & Sets']];
+        // Categorías de fábrica; el dueño puede agregar o quitar desde el panel (se guardan en los ajustes).
+        const CATS_BASE = [{ id: 'parejas', nombre: 'Parejas' }, { id: 'caballero', nombre: 'Caballero' }, { id: 'llaveros', nombre: 'Llaveros' }, { id: 'collares', nombre: 'Collares & Sets' }];
+        const categorias = () => (ajustes.categorias && ajustes.categorias.length ? ajustes.categorias : CATS_BASE);
+        const nombreCat = (id) => (categorias().find((c) => c.id === id) || {}).nombre || id;
+        function pintarFiltros() {
+            if (catActual !== 'todas' && !categorias().some((c) => c.id === catActual)) catActual = 'todas';
+            document.getElementById('filtros').innerHTML = [{ id: 'todas', nombre: 'Todas' }, ...categorias()]
+                .map((c) => `<button class="filtro${c.id === catActual ? ' activo' : ''}" data-cat="${esc(c.id)}">${esc(c.nombre)}</button>`).join('');
+        }
 
         function quitarTarjeta(img) {
             const g = img.closest('.grupo');
@@ -1000,9 +1026,14 @@
                            ...productos.filter(p => p.dinamico).sort((a, b) => (a.creado || 0) - (b.creado || 0))]
                 .filter(p => !ajustes.ocultos.includes(p.id));
             let html = '';
-            for (const [clave, nombre] of GRUPOS) {
+            const grupos = categorias().map((c) => [c.id, c.nombre]);
+            // Por seguridad: si un producto quedó con una categoría que ya no existe, se muestra en "Otros".
+            if (cat === 'todas' && orden.some((p) => !grupos.some(([id]) => id === p.cat[0]))) grupos.push(['_otros', 'Otros']);
+            for (const [clave, nombre] of grupos) {
                 // En "Todas" cada producto aparece una sola vez, en su categoría principal.
-                const items = orden.filter(p => cat === 'todas' ? p.cat[0] === clave : (clave === cat && p.cat.includes(cat)));
+                const items = orden.filter(p => cat === 'todas'
+                    ? (clave === '_otros' ? !grupos.some(([id]) => id === p.cat[0]) : p.cat[0] === clave)
+                    : (clave === cat && p.cat.includes(cat)));
                 if (!items.length) continue;
                 html += `<section class="grupo" data-grupo="${clave}"><h3 class="grupo-titulo">${esc(nombre)}</h3><div class="grupo-grid">${items.map(tarjeta).join('')}</div></section>`;
             }
@@ -1192,10 +1223,11 @@
                 if (p.dinamico) continue;
                 const o = ORIGINALES.find((x) => x.id === p.id);
                 if (!o) continue;
-                p.nombre = o.nombre; p.imgs = [...o.imgs]; p.video = o.video; p.poster = o.poster;
+                p.nombre = o.nombre; p.imgs = [...o.imgs]; p.video = o.video; p.poster = o.poster; p.cat = [...o.cat];
                 const f = (ajustes.fijos || {})[p.id];
                 if (!f) continue;
                 if (f.nombre) p.nombre = f.nombre;
+                if (f.cat) p.cat = [f.cat];
                 if (Array.isArray(f.imgs) && f.imgs.length) p.imgs = [...f.imgs];
                 if (f.video !== undefined) {
                     p.video = f.video || undefined;
@@ -1210,12 +1242,13 @@
         async function cargarTodo() {
             const [lista, aj, t] = await Promise.all([pedir('/api/productos'), pedir('/api/ajustes'), pedir('/api/tasa')]);
             if (aj && typeof aj === 'object') {
-                ajustes = { ocultos: aj.ocultos || [], agotados: aj.agotados || [], precios: aj.precios || {}, fijos: aj.fijos || {},
+                ajustes = { ocultos: aj.ocultos || [], agotados: aj.agotados || [], precios: aj.precios || {}, fijos: aj.fijos || {}, categorias: Array.isArray(aj.categorias) && aj.categorias.length ? aj.categorias : null,
                             tasaModo: aj.tasaModo || 'auto', tasaManual: aj.tasaManual || null };
             }
             tasa = t && t.valor ? t : null;
             pintarTasa();
             aplicarCambiosFijos();
+            pintarFiltros();
             if (Array.isArray(lista)) {
                 listaDin = lista;
                 const reciente = Date.now() - 14 * 24 * 3600 * 1000;
@@ -1240,7 +1273,6 @@
         (() => {
             const A = (id) => document.getElementById('adm-' + id);
             const ov = document.getElementById('adminOverlay');
-            const CATS = { parejas: 'Parejas', caballero: 'Caballero', llaveros: 'Llaveros', collares: 'Collares & Sets' };
             const MAX_FOTOS = 4;
             let clave = '';
             try { clave = sessionStorage.getItem('lm_admin') || ''; } catch (e) {}
@@ -1472,7 +1504,6 @@
                 videoAdm = null;
                 A('estadoVideo').textContent = '';
                 A('btnOriginal').hidden = true;
-                A('completos').hidden = false;
                 A('formProducto').reset();
                 fotosAdm = [];
                 dibujarFotos();
@@ -1503,7 +1534,7 @@
                 A('errForm').textContent = '';
                 const nombre = A('nombre').value.trim();
                 if (!nombre) { A('errForm').textContent = 'Escribe el título del producto.'; A('nombre').focus(); return; }
-                if (!editandoFijo && !A('cat').value) { A('errForm').textContent = 'Elige una categoría.'; A('cat').focus(); return; }
+                if (!A('cat').value) { A('errForm').textContent = 'Elige una categoría.'; A('cat').focus(); return; }
                 if (!fotosAdm.length) { A('errForm').textContent = 'Agrega al menos una foto.'; return; }
                 const fijo = editandoFijo;
                 const cuerpo = {
@@ -1512,7 +1543,8 @@
                     nuevas: fotosAdm.filter((f) => f.data).map((f) => f.data),
                     video: '',
                 };
-                if (!fijo) cuerpo.cat = A('cat').value;
+                // En los de fábrica solo se envía la categoría si la cambió (algunos están en dos categorías).
+                if (!fijo || A('cat').value !== ((porId[fijo] || {}).cat || [])[0]) cuerpo.cat = A('cat').value;
                 const edicion = editandoId;
                 const textoBoton = (fijo || edicion) ? 'Guardar cambios' : 'Publicar producto';
                 A('btnGuardar').disabled = true;
@@ -1557,18 +1589,83 @@
                         <img src="${esc(p.imgs[0])}" alt="">
                         <div class="adm-datos">
                             <strong>${esc(p.nombre)}</strong>
-                            <span>${esc(precio ? '€' + precio.replace(/^€/, '') : 'Consultar precio')} · ${esc((p.cat || []).map((c) => CATS[c] || c).join(', '))}${etiquetas}</span>
+                            <span>${esc(precio ? '€' + precio.replace(/^€/, '') : 'Consultar precio')} · ${esc((p.cat || []).map(nombreCat).join(', '))}${etiquetas}</span>
                         </div>
                         <div class="adm-acciones">${acciones}</div>
                     </div>`;
             }
+            const sinTildes = (t) => String(t || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
+            function llenarSelects() {
+                const cats = categorias();
+                const sel = A('cat'), fil = A('filtroCat');
+                const vSel = sel.value, vFil = fil.value;
+                sel.innerHTML = '<option value="">Elige una…</option>' + cats.map((c) => `<option value="${esc(c.id)}">${esc(c.nombre)}</option>`).join('');
+                fil.innerHTML = '<option value="">Todas las categorías</option>' + cats.map((c) => `<option value="${esc(c.id)}">${esc(c.nombre)}</option>`).join('');
+                if (cats.some((c) => c.id === vSel)) sel.value = vSel;
+                if (cats.some((c) => c.id === vFil)) fil.value = vFil;
+            }
             function dibujarLista() {
                 lista = listaDin;
+                const q = sinTildes(A('buscar').value);
+                const cf = A('filtroCat').value;
+                const pasa = (p) => (!q || sinTildes(p.nombre).includes(q)) && (!cf || (p.cat || []).includes(cf));
                 const dins = productos.filter((p) => p.dinamico);
                 const fijos = productos.filter((p) => !p.dinamico);
-                A('lista').innerHTML = [...dins.map((p) => filaProducto(p, true)), ...fijos.map((p) => filaProducto(p, false))].join('')
-                    || '<p class="adm-vacio">Todavía no hay productos.</p>';
+                const todos = [...dins.map((p) => [p, true]), ...fijos.map((p) => [p, false])];
+                const vistos = todos.filter(([p]) => pasa(p));
+                A('conteo').textContent = todos.length ? ((q || cf) ? `Mostrando ${vistos.length} de ${todos.length} productos` : `${todos.length} productos`) : '';
+                A('lista').innerHTML = vistos.map(([p, d]) => filaProducto(p, d)).join('')
+                    || (todos.length ? '<p class="adm-vacio">No hay productos que coincidan con la búsqueda.</p>' : '<p class="adm-vacio">Todavía no hay productos.</p>');
             }
+            A('buscar').addEventListener('input', dibujarLista);
+            A('filtroCat').addEventListener('change', dibujarLista);
+
+            /* ----- categorías ----- */
+            function dibujarCats() {
+                const cuenta = (id) => productos.filter((p) => (p.cat || []).includes(id)).length;
+                A('listaCats').innerHTML = categorias().map((c) =>
+                    `<span class="adm-chip">${esc(c.nombre)} <small>${cuenta(c.id)}</small><button type="button" data-quitar-cat="${esc(c.id)}" aria-label="Eliminar la categoría ${esc(c.nombre)}">&times;</button></span>`).join('');
+            }
+            const idDeNombre = (nombre) => {
+                let base = sinTildes(nombre).replace(/[^a-z0-9]/g, '').slice(0, 18) || 'cat' + Date.now().toString(36).slice(-5);
+                let id = base, n = 2;
+                while (categorias().some((c) => c.id === id)) id = base + n++;
+                return id;
+            };
+            A('formCat').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                A('errCat').textContent = '';
+                const nombre = A('nuevaCat').value.replace(/\s+/g, ' ').trim();
+                if (!nombre) { A('errCat').textContent = 'Escribe el nombre de la categoría.'; return; }
+                if (categorias().some((c) => sinTildes(c.nombre) === sinTildes(nombre))) { A('errCat').textContent = 'Ya existe una categoría con ese nombre.'; return; }
+                A('btnCat').disabled = true;
+                try {
+                    await guardarAjustes({ categorias: [...categorias(), { id: idDeNombre(nombre), nombre }] });
+                    A('nuevaCat').value = '';
+                    aviso(`Categoría “${nombre}” agregada ✓`);
+                } catch (err) {
+                    if (err.status === 401) { salir(); return; }
+                    A('errCat').textContent = err.message;
+                } finally { A('btnCat').disabled = false; }
+            });
+            A('listaCats').addEventListener('click', async (e) => {
+                const b = e.target.closest('[data-quitar-cat]');
+                if (!b) return;
+                const c = categorias().find((x) => x.id === b.dataset.quitarCat);
+                if (!c) return;
+                const n = productos.filter((p) => (p.cat || []).includes(c.id)).length;
+                if (categorias().length <= 1) { aviso('Debe quedar al menos una categoría.', true); return; }
+                if (n) { aviso(`“${c.nombre}” todavía tiene ${n} producto(s). Cámbialos de categoría (botón Editar) o elimínalos primero.`, true); return; }
+                if (!confirm(`¿Eliminar la categoría “${c.nombre}”?`)) return;
+                b.disabled = true;
+                try {
+                    await guardarAjustes({ categorias: categorias().filter((x) => x.id !== c.id) });
+                    aviso('Categoría eliminada ✓');
+                } catch (err) {
+                    if (err.status === 401) { salir(); return; }
+                    aviso(err.message, true); b.disabled = false;
+                }
+            });
             function dibujarTasa() {
                 A('tasaActual').textContent = tasa && tasa.valor
                     ? `Ahora: 1 € = Bs ${fmt(tasa.valor)} (${tasa.fuente === 'manual' ? 'puesta por ti' : 'BCV'})`
@@ -1578,7 +1675,7 @@
                 A('tasaManualBox').hidden = modo !== 'manual';
                 if (modo === 'manual' && ajustes.tasaManual && document.activeElement !== A('tasaManual')) A('tasaManual').value = String(ajustes.tasaManual).replace('.', ',');
             }
-            window.adminDibujar = () => { dibujarLista(); dibujarTasa(); };
+            window.adminDibujar = () => { llenarSelects(); dibujarCats(); dibujarLista(); dibujarTasa(); };
             async function cargarLista() { await cargarTodo(); }
 
             document.querySelectorAll('input[name="adm-modo"]').forEach((r) => r.addEventListener('change', () => {
@@ -1631,7 +1728,7 @@
                     const copia = {
                         tipo: 'copia-catalogo', version: 2, fecha: new Date().toISOString(),
                         productos: productosCopia,
-                        ajustes: { ocultos: ajustes.ocultos, agotados: ajustes.agotados, precios: ajustes.precios, fijos: fijosCopia, tasaModo: ajustes.tasaModo, tasaManual: ajustes.tasaManual }
+                        ajustes: { ocultos: ajustes.ocultos, agotados: ajustes.agotados, precios: ajustes.precios, fijos: fijosCopia, categorias: ajustes.categorias, tasaModo: ajustes.tasaModo, tasaManual: ajustes.tasaManual }
                     };
                     const url = URL.createObjectURL(new Blob([JSON.stringify(copia)], { type: 'application/json' }));
                     const a = document.createElement('a');
@@ -1692,6 +1789,10 @@
                 A('btnRestaurar').disabled = true; A('btnCopia').disabled = true;
                 try {
                     await cargarTodo();
+                    // Primero las categorías de la copia que aquí no existan (los productos las necesitan)
+                    const catsCopia = ((copia.ajustes || {}).categorias || []).filter((c) => c && c.id && c.nombre);
+                    const faltantes = catsCopia.filter((c) => !categorias().some((x) => x.id === c.id));
+                    if (faltantes.length) await guardarAjustes({ categorias: [...categorias(), ...faltantes] });
                     const nombres = new Map(listaDin.map((p) => [p.nombre.trim().toLowerCase(), p.id]));
                     const mapa = {};   // id de la copia → id actual
                     let nuevos = 0, i = 0;
@@ -1780,12 +1881,12 @@
                     editandoFijo = p.id;
                     A('nombre').value = p.nombre;
                     A('precio').value = String(precioDe(p)).replace(/^€/, '');
-                    A('completos').hidden = true;   // los productos de fábrica conservan su categoría
+                    A('cat').value = (p.cat || [])[0] || '';
                     fotosAdm = p.imgs.map((url) => ({ url }));
                     videoAdm = p.video ? { url: p.video } : null;
                     dibujarFotos();
                     A('tituloForm').textContent = 'Editar producto';
-                    A('subForm').textContent = 'Cambia el título, el precio, las fotos o el video y toca “Guardar cambios”.';
+                    A('subForm').textContent = 'Cambia el título, el precio, la categoría, las fotos o el video y toca “Guardar cambios”.';
                     A('btnGuardar').textContent = 'Guardar cambios';
                     A('btnCancelar').hidden = false;
                     A('btnOriginal').hidden = !(ajustes.fijos && ajustes.fijos[p.id]);

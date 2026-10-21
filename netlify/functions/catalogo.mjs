@@ -4,7 +4,15 @@
 import { getStore } from '@netlify/blobs';
 import { createHash, timingSafeEqual, randomBytes } from 'node:crypto';
 
-const CATEGORIAS = ['parejas', 'caballero', 'llaveros', 'collares'];
+// Categorías de fábrica. El dueño puede agregar o quitar desde el panel (se guardan en los ajustes).
+const CATEGORIAS_BASE = [
+  { id: 'parejas', nombre: 'Parejas' },
+  { id: 'caballero', nombre: 'Caballero' },
+  { id: 'llaveros', nombre: 'Llaveros' },
+  { id: 'collares', nombre: 'Collares & Sets' },
+];
+const MAX_CATEGORIAS = 30;
+const categoriasDe = (aj) => (Array.isArray(aj.categorias) && aj.categorias.length ? aj.categorias : CATEGORIAS_BASE);
 const MAX_PRODUCTOS = 150;
 const MAX_FOTOS = 4;
 const MAX_BYTES_FOTO = 1_500_000;
@@ -44,7 +52,7 @@ async function guardarLista(lista) {
 }
 
 // ---- Ajustes: productos ocultos/agotados, precios de los fijos y tasa del día ----
-const AJUSTES_BASE = { ocultos: [], agotados: [], precios: {}, fijos: {}, tasaModo: 'auto', tasaManual: null, tasaManualFecha: null };
+const AJUSTES_BASE = { ocultos: [], agotados: [], precios: {}, fijos: {}, categorias: null, tasaModo: 'auto', tasaManual: null, tasaManualFecha: null };
 async function leerAjustes() {
   return { ...AJUSTES_BASE, ...((await catalogo().get('ajustes', { type: 'json' })) || {}) };
 }
@@ -273,7 +281,7 @@ function respaldarEnSegundoPlano(context) {
 async function armarProducto(cuerpo, previo) {
   const nombre = texto(cuerpo.nombre, 80);
   if (!nombre) throw new Error('Falta el título del producto.');
-  const cat = CATEGORIAS.includes(cuerpo.cat) ? cuerpo.cat : null;
+  const cat = categoriasDe(await leerAjustes()).some((c) => c.id === cuerpo.cat) ? cuerpo.cat : null;
   if (!cat) throw new Error('Elige una categoría.');
 
   const existentes = previo ? previo.imgs : [];
@@ -404,7 +412,12 @@ export default async (req, context) => {
       const subidas = await subirFotos(nuevas);
       const imgs = [...mantener, ...subidas];
       const quitadas = previo.imgs.filter((u) => !imgs.includes(u));
-      aj.fijos[id] = { nombre, imgs, video };
+      let cat = previo.cat || null;
+      if (c.cat !== undefined && c.cat !== null && c.cat !== '') {
+        if (!categoriasDe(aj).some((x) => x.id === c.cat)) throw new Error('Elige una categoría.');
+        cat = c.cat;
+      }
+      aj.fijos[id] = { nombre, imgs, video, ...(cat ? { cat } : {}) };
       if ('precio' in c) {
         const t = texto(c.precio, 20);
         if (t) aj.precios[id] = t; else delete aj.precios[id];
@@ -450,6 +463,26 @@ export default async (req, context) => {
           if (ID_OK.test(k) && t) p[k] = t;
         }
         aj.precios = p;
+      }
+      if ('categorias' in c) {
+        const vistos = new Set();
+        const nuevas = [];
+        for (const x of Array.isArray(c.categorias) ? c.categorias.slice(0, MAX_CATEGORIAS) : []) {
+          const idc = String(x && x.id || '');
+          const nombre = texto(x && x.nombre, 30);
+          if (!/^[a-z0-9]{1,20}$/.test(idc) || !nombre) throw new Error('La categoría necesita un nombre.');
+          if (vistos.has(idc)) throw new Error('Ya existe una categoría con ese nombre.');
+          vistos.add(idc);
+          nuevas.push({ id: idc, nombre });
+        }
+        if (!nuevas.length) throw new Error('La categoría no se puede dejar vacía: debe quedar al menos una.');
+        // No se puede quitar una categoría que todavía tiene productos agregados desde el panel.
+        const lista = await leerLista();
+        for (const quitada of categoriasDe(aj).filter((x) => !vistos.has(x.id))) {
+          const n = lista.filter((p) => p.cat === quitada.id).length + Object.values(aj.fijos).filter((f) => f.cat === quitada.id).length;
+          if (n) throw new Error(`La categoría “${quitada.nombre}” todavía tiene ${n} producto(s). Cámbialos de categoría primero.`);
+        }
+        aj.categorias = nuevas;
       }
       if ('tasaModo' in c) {
         aj.tasaModo = c.tasaModo === 'manual' ? 'manual' : 'auto';
@@ -497,7 +530,7 @@ export default async (req, context) => {
 
     return fallo('Ruta no encontrada.', 404);
   } catch (e) {
-    const esDeUsuario = /^(Falta|Elige|Agrega|Máximo|Una de las fotos|El video|Se perdió)/.test(e.message);
+    const esDeUsuario = /^(Falta|Elige|Agrega|Máximo|Una de las fotos|El video|Se perdió|La categoría|Ya existe)/.test(e.message);
     if (!esDeUsuario) console.error(e);
     return fallo(esDeUsuario ? e.message : 'Ocurrió un error en el servidor. Intenta de nuevo.', esDeUsuario ? 400 : 500);
   }

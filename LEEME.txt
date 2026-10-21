@@ -59,12 +59,13 @@ WHATSAPP  →  buscar  584125000498  (varios lugares: const miTelefono, botón f
 INSTAGRAM / TIKTOK  →  buscar  instagram.com  y  tiktok.com  (pie de página y ventana de Contacto)
 CIUDAD / TEXTOS DE ENVÍOS  →  buscar  Valencia, Venezuela  y  Envíos
 TEXTOS DE LA PORTADA  →  buscar  Piezas únicas en acero inoxidable
-CATEGORÍAS  →  están en 4 lugares que deben coincidir:
-    1) botones de filtro: buscar  data-cat=
-    2) lista GRUPOS en el JavaScript: buscar  const GRUPOS
-    3) opciones del formulario del panel: buscar  id="adm-cat"   y   const CATS
-    4) lista permitida del servidor: netlify/functions/catalogo.mjs → const CATEGORIAS
-       (usar las mismas claves en minúsculas, sin tildes ni espacios)
+CATEGORÍAS  →  el dueño las agrega y elimina desde el panel (tarjeta "Categorías"); se guardan en Netlify y
+    aparecen solas en los botones de filtro, en los grupos del catálogo y en el formulario. Una categoría solo se
+    puede eliminar si ya no tiene productos (hay que cambiarlos de categoría con "Editar") y siempre debe quedar una.
+    Las 4 de fábrica (Parejas, Caballero, Llaveros, Collares & Sets) son solo el punto de partida y también se pueden
+    eliminar cuando queden vacías. Para cambiar las de partida en el código: index.html → const CATS_BASE y
+    el mismo listado en netlify/functions/catalogo.mjs → const CATEGORIAS_BASE (mismas claves, en minúsculas,
+    sin tildes ni espacios). Los productos fijos usan esas claves en su campo  cat  (const productos = [ ... ]).
 SECCIÓN "HECHO A TU MEDIDA" (video del láser)  →  buscar  id="personalizado"  (puedes borrar la sección completa)
 PRODUCTOS FIJOS (los que vienen "de fábrica")  →  buscar  const productos = [
     Cada uno: id, cat (lista de categorías), nombre, imgs (fotos), precio, tag, y opcional video/poster.
@@ -109,6 +110,8 @@ fotos (agregar, quitar, reemplazar) y video; "Volver al original" deshace esos c
 (no tocan index.html) y también se copian a GitHub (respaldo/fotos, respaldo/videos, respaldo/productos.json).
 Video: MP4 o WebM de hasta 5 MB (unos 40 segundos). Si pesa más, el panel intenta comprimirlo solo en el navegador
 (tarda lo que dura el video y puede perder el sonido); si aun así no baja de 5 MB, pide recortarlo.
+
+BÚSQUEDA EN EL PANEL: en "Mis productos" hay una barra para buscar por nombre y un selector para filtrar por categoría.
 
 LÍMITES DEL PANEL: hasta 150 productos, 4 fotos y 1 video por producto (las fotos se reducen solas a ~1100 px).
 Netlify gratis es suficiente para este uso.
