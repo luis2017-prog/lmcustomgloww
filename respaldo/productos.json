@@ -1,0 +1,73 @@
+{
+  "aviso": "Copia automática hecha desde el panel de administrador. No la edites a mano: se reescribe en cada cambio.",
+  "productos": [
+    {
+      "id": "nmvh1k59tc2ccf3",
+      "nombre": "Placa militar plateado",
+      "desc": "",
+      "precio": "15",
+      "cat": "llaveros",
+      "imgs": [
+        "respaldo/fotos/1e6788788ebf786d65c3711e.jpg",
+        "respaldo/fotos/7deea381a295911218449c0e.jpg"
+      ],
+      "creado": 1792522407089
+    },
+    {
+      "id": "nmvh1j3q762742a",
+      "nombre": "Placa militar dorado",
+      "desc": "",
+      "precio": "15",
+      "cat": "llaveros",
+      "imgs": [
+        "respaldo/fotos/214218ed215b7a5656b7db8b.jpg",
+        "respaldo/fotos/9103fd51accc1a9316620dcf.jpg"
+      ],
+      "creado": 1792522358431
+    },
+    {
+      "id": "nmvh1h8dj78c175",
+      "nombre": "Pulsera plateada parejas plateadas",
+      "desc": "",
+      "precio": "20",
+      "cat": "parejas",
+      "imgs": [
+        "respaldo/fotos/caf825050f22caf39dd53eba.jpg",
+        "respaldo/fotos/c0625faeefd25ea0493b0bf5.jpg",
+        "respaldo/fotos/60614ddaa8dcc634920b21df.jpg"
+      ],
+      "creado": 1792522271143
+    },
+    {
+      "id": "nmvh14zs694d0cc",
+      "nombre": "Set dijes corazón + Pulseras",
+      "desc": "",
+      "precio": "40",
+      "cat": "collares",
+      "imgs": [
+        "respaldo/fotos/72b7eb1b02c5182950314dcf.jpg",
+        "respaldo/fotos/8bca03ab919f686969d03548.jpg",
+        "respaldo/fotos/cbc07d59f7d16af73deb2847.jpg"
+      ],
+      "creado": 1792521700134
+    }
+  ],
+  "ajustes": {
+    "ocultos": [],
+    "agotados": [
+      "p2",
+      "p3"
+    ],
+    "precios": {
+      "p1": "20",
+      "p2": "20",
+      "p7": "20",
+      "p3": "16",
+      "p8": "28",
+      "p9": "30"
+    },
+    "tasaModo": "auto",
+    "tasaManual": null,
+    "tasaManualFecha": null
+  }
+}
