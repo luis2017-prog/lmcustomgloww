@@ -81,9 +81,12 @@ async function tasaAuto() {
 
 const claveDeUrl = (url) => (typeof url === 'string' && url.startsWith('/api/img/') ? url.slice(9) : null);
 
-async function subirFotos(dataUrls) {
+const MAX_BYTES_MINI = 120_000;
+
+// `minis` (opcional) trae una versión chica de cada foto para que el catálogo cargue más rápido.
+async function subirFotos(dataUrls, minis = []) {
   const urls = [];
-  for (const d of dataUrls) {
+  for (const [i, d] of dataUrls.entries()) {
     const m = /^data:image\/(jpeg|png|webp);base64,([A-Za-z0-9+/=]+)$/.exec(String(d));
     if (!m) throw new Error('Una de las fotos no tiene un formato válido (usa JPG, PNG o WebP).');
     const buf = Buffer.from(m[2], 'base64');
@@ -92,6 +95,13 @@ async function subirFotos(dataUrls) {
     const clave = `${randomBytes(12).toString('hex')}.${ext}`;
     const datos = buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength);
     await fotos().set(clave, datos, { metadata: { type: `image/${m[1]}` } });
+    const mm = /^data:image\/jpeg;base64,([A-Za-z0-9+/=]+)$/.exec(String((Array.isArray(minis) && minis[i]) || ''));
+    if (mm) {
+      const chica = Buffer.from(mm[1], 'base64');
+      if (chica.length && chica.length <= MAX_BYTES_MINI) {
+        await fotos().set(`m-${clave}`, chica.buffer.slice(chica.byteOffset, chica.byteOffset + chica.byteLength), { metadata: { type: 'image/jpeg' } });
+      }
+    }
     urls.push(`/api/img/${clave}`);
   }
   return urls;
@@ -150,7 +160,7 @@ async function recibirParteVideo(c) {
 async function borrarFotos(urls) {
   for (const u of urls) {
     const k = claveDeUrl(u);
-    if (k && /^[a-f0-9]{24}\.(jpg|png|webp)$/.test(k)) await fotos().delete(k);
+    if (k && /^[a-f0-9]{24}\.(jpg|png|webp)$/.test(k)) { await fotos().delete(k); await fotos().delete(`m-${k}`); }
   }
 }
 
@@ -296,7 +306,7 @@ async function armarProducto(cuerpo, previo) {
     else if (await videoValido(cuerpo.video)) video = cuerpo.video;
     else throw new Error('El video no se subió bien. Vuelve a elegirlo.');
   }
-  const subidas = await subirFotos(nuevas);
+  const subidas = await subirFotos(nuevas, cuerpo.minis);
   const quitadas = existentes.filter((u) => !mantener.includes(u));
   return {
     producto: {
@@ -323,7 +333,9 @@ export default async (req, context) => {
     if (ruta.startsWith('/api/img/') && metodo === 'GET') {
       const clave = decodeURIComponent(ruta.slice(9));
       if (!/^[a-f0-9]{24}\.(jpg|png|webp)$/.test(clave)) return new Response('No encontrada', { status: 404 });
-      const foto = await fotos().getWithMetadata(clave, { type: 'arrayBuffer' });
+      // ?m=1 → versión chica (si existe; si no, la foto completa)
+      const quiereMini = new URL(req.url).searchParams.get('m') === '1';
+      const foto = (quiereMini && (await fotos().getWithMetadata(`m-${clave}`, { type: 'arrayBuffer' }))) || (await fotos().getWithMetadata(clave, { type: 'arrayBuffer' }));
       if (!foto) return new Response('No encontrada', { status: 404 });
       return new Response(foto.data, {
         headers: {
@@ -409,7 +421,7 @@ export default async (req, context) => {
         if (previo.video === c.video || await videoValido(c.video, true)) video = c.video;
         else throw new Error('El video no se subió bien. Vuelve a elegirlo.');
       }
-      const subidas = await subirFotos(nuevas);
+      const subidas = await subirFotos(nuevas, c.minis);
       const imgs = [...mantener, ...subidas];
       const quitadas = previo.imgs.filter((u) => !imgs.includes(u));
       let cat = previo.cat || null;

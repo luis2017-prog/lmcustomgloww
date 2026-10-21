@@ -8,8 +8,9 @@
     <link rel="icon" href="imagenes/logo-lm.jpg">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Montserrat:wght@400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Las tipografías cargan sin bloquear la página (se muestra el texto de inmediato y luego cambia de letra) -->
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Montserrat:wght@400;500;600&display=swap" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Montserrat:wght@400;500;600&display=swap"></noscript>
 
     <style>
         :root {
@@ -25,6 +26,8 @@
             --sans: 'Montserrat', 'Helvetica Neue', Arial, sans-serif;
         }
 
+        .ic { display: inline-block; font-style: normal; line-height: 1; vertical-align: -0.125em; }
+        .ic svg { width: 1em; height: 1em; fill: currentColor; display: block; }
         * { box-sizing: border-box; }
         html { scroll-behavior: smooth; scroll-padding-top: 90px; }
 
@@ -34,10 +37,11 @@
             margin: 0;
             color: var(--oscuro);
             background-color: #f4f1ec;
-            background-image: url("imagenes/fondo.jpg");
-            background-attachment: fixed;
-            background-size: cover;
-            background-position: center;
+        }
+        body::before {
+            content: ""; position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: -1;
+            background: #f4f1ec url("imagenes/fondo.jpg") center / cover no-repeat;
+            pointer-events: none;
         }
 
         /* ---------- BARRA ANIMADA ---------- */
@@ -411,7 +415,7 @@
         /* ---------- MODALES ---------- */
         .modal-fav {
             display: none; position: fixed; z-index: 3000; inset: 0;
-            background-color: rgba(0,0,0,0.8); backdrop-filter: blur(5px);
+            background-color: rgba(0,0,0,0.8); -webkit-backdrop-filter: blur(5px); backdrop-filter: blur(5px);
             overflow-y: auto;
         }
         .modal-fav.abierto { display: block; }
@@ -632,6 +636,8 @@
     </style>
 </head>
 <body>
+    <!-- Íconos: Font Awesome Free (CC BY 4.0, https://fontawesome.com/license/free), incrustados para no depender de un servidor externo -->
+    <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><symbol id="ic-cart" viewBox="0 0 640 512"><path d="M24-16C10.7-16 0-5.3 0 8s10.7 24 24 24h45.3c3.9 0 7.2 2.8 7.9 6.6l52.1 286.3c6.2 34.2 36 59.1 70.8 59.1H456c13.3 0 24-10.7 24-24s-10.7-24-24-24H200.1c-11.6 0-21.5-8.3-23.6-19.7l-5.1-28.3H475c30.8 0 57.2-21.9 62.9-52.2l31-165.9c3.7-19.7-11.4-37.9-31.5-37.9H124.7l-.4-2c-4.8-26.6-28-46-55.1-46zm184 528a48 48 0 1 0 0-96 48 48 0 1 0 0 96m224 0a48 48 0 1 0 0-96 48 48 0 1 0 0 96"/></symbol><symbol id="ic-play" viewBox="0 0 448 512"><path d="M91.2 36.9c-12.4-6.8-27.4-6.5-39.6.7S32 57.9 32 72v368c0 14.1 7.5 27.2 19.6 34.4s27.2 7.5 39.6.7l336-184c12.8-7 20.8-20.5 20.8-35.1s-8-28.1-20.8-35.1z"/></symbol><symbol id="ic-circle-play" viewBox="0 0 512 512"><path d="M0 256a256 256 0 1 1 512 0 256 256 0 1 1-512 0m188.3-108.9c-7.6 4.2-12.3 12.3-12.3 20.9v176c0 8.7 4.7 16.7 12.3 20.9s16.8 4.1 24.3-.5l144-88c7.1-4.4 11.5-12.1 11.5-20.5s-4.4-16.1-11.5-20.5l-144-88c-7.4-4.5-16.7-4.7-24.3-.5z"/></symbol><symbol id="ic-heart" viewBox="0 0 512 512"><path d="m241 87.1 15 20.7 15-20.7C296 52.5 336.2 32 378.9 32 452.4 32 512 91.6 512 165.1v2.6c0 112.2-139.9 242.5-212.9 298.2-12.4 9.4-27.6 14.1-43.1 14.1s-30.8-4.6-43.1-14.1C139.9 410.2 0 279.9 0 167.7v-2.6C0 91.6 59.6 32 133.1 32 175.8 32 216 52.5 241 87.1"/></symbol><symbol id="ic-trash" viewBox="0 0 448 512"><path d="M136.7 5.9 128 32H32C14.3 32 0 46.3 0 64s14.3 32 32 32h384c17.7 0 32-14.3 32-32s-14.3-32-32-32h-96l-8.7-26.1C306.9-7.2 294.7-16 280.9-16H167.1c-13.8 0-26 8.8-30.4 21.9M416 144H32l21.1 323.1C54.7 492.4 75.7 512 101 512h246c25.3 0 46.3-19.6 47.9-44.9z"/></symbol><symbol id="ic-box-open" viewBox="0 0 640 512"><path d="M560.3 237.2c10.4 11.8 28.3 14.4 41.8 5.5 14.7-9.8 18.7-29.7 8.9-44.4l-48-72c-2.8-4.2-6.6-7.7-11.1-10.2L351.4 4.7C332.1-6 308.6-6 289.2 4.7L88.8 116c-5.4 3-9.7 7.4-12.6 12.8l-48.5 89.9c-12.6 23.4-3.8 52.5 19.6 65.1l33 17.7v53.3c0 23 12.4 44.3 32.4 55.7l176 99.7c19.6 11.1 43.5 11.1 63.1 0l176-99.7c20.1-11.4 32.4-32.6 32.4-55.7V237.3zm-240-9.8L170.2 144l150.1-83.4L470.4 144zm-41.5 50.2-21.3 46.2L91.7 235l25.4-47.2z"/></symbol><symbol id="ic-calendar-days" viewBox="0 0 448 512"><path d="M128 0c17.7 0 32 14.3 32 32v32h128V32c0-17.7 14.3-32 32-32s32 14.3 32 32v32h32c35.3 0 64 28.7 64 64v288c0 35.3-28.7 64-64 64H64c-35.3 0-64-28.7-64-64V128c0-35.3 28.7-64 64-64h32V32c0-17.7 14.3-32 32-32M64 240v32c0 8.8 7.2 16 16 16h32c8.8 0 16-7.2 16-16v-32c0-8.8-7.2-16-16-16H80c-8.8 0-16 7.2-16 16m128 0v32c0 8.8 7.2 16 16 16h32c8.8 0 16-7.2 16-16v-32c0-8.8-7.2-16-16-16h-32c-8.8 0-16 7.2-16 16m144-16c-8.8 0-16 7.2-16 16v32c0 8.8 7.2 16 16 16h32c8.8 0 16-7.2 16-16v-32c0-8.8-7.2-16-16-16zM64 368v32c0 8.8 7.2 16 16 16h32c8.8 0 16-7.2 16-16v-32c0-8.8-7.2-16-16-16H80c-8.8 0-16 7.2-16 16m144-16c-8.8 0-16 7.2-16 16v32c0 8.8 7.2 16 16 16h32c8.8 0 16-7.2 16-16v-32c0-8.8-7.2-16-16-16zm112 16v32c0 8.8 7.2 16 16 16h32c8.8 0 16-7.2 16-16v-32c0-8.8-7.2-16-16-16h-32c-8.8 0-16 7.2-16 16"/></symbol><symbol id="ic-signature" viewBox="0 0 640 512"><path d="M192 128c0-17.7 14.3-32 32-32s32 14.3 32 32v7.8c0 27.7-2.4 55.3-7.1 82.5l-84.4 25.3c-40.6 12.2-68.4 49.6-68.4 92V368h-72c-13.3 0-24 10.7-24 24s10.7 24 24 24h72.5c4.2 36 34.8 64 72 64 26 0 50-13.9 62.9-36.5l13.9-24.3c26.8-47 46.5-97.7 58.4-150.5l94.4-28.3-12.5 37.5c-3.3 9.8-1.6 20.5 4.4 28.8S405.7 320 416 320h128c17.7 0 32-14.3 32-32s-14.3-32-32-32h-83.6l18-53.9c3.8-11.3.9-23.8-7.4-32.4s-20.7-11.8-32.2-8.4l-122.4 36.8c2.4-20.7 3.6-41.4 3.6-62.3V128c0-53-43-96-96-96s-96 43-96 96v32c0 17.7 14.3 32 32 32s32-14.3 32-32zm-9.2 177 49-14.7c-10.4 33.8-24.5 66.4-42.1 97.2l-13.9 24.3c-1.5 2.6-4.3 4.3-7.4 4.3-4.7 0-8.5-3.8-8.5-8.5v-71.9c0-14.1 9.3-26.6 22.8-30.7zM616 416c13.3 0 24-10.7 24-24s-10.7-24-24-24H323.1q-9.75 24.45-21.6 48z"/></symbol><symbol id="ic-instagram" viewBox="0 0 448 512"><path d="M224.3 141a115 115 0 1 0-.6 230 115 115 0 1 0 .6-230m-.6 40.4a74.6 74.6 0 1 1 .6 149.2 74.6 74.6 0 1 1-.6-149.2m93.4-45.1a26.8 26.8 0 1 1 53.6 0 26.8 26.8 0 1 1-53.6 0m129.7 27.2c-1.7-35.9-9.9-67.7-36.2-93.9-26.2-26.2-58-34.4-93.9-36.2-37-2.1-147.9-2.1-184.9 0-35.8 1.7-67.6 9.9-93.9 36.1s-34.4 58-36.2 93.9c-2.1 37-2.1 147.9 0 184.9 1.7 35.9 9.9 67.7 36.2 93.9s58 34.4 93.9 36.2c37 2.1 147.9 2.1 184.9 0 35.9-1.7 67.7-9.9 93.9-36.2 26.2-26.2 34.4-58 36.2-93.9 2.1-37 2.1-147.8 0-184.8M399 388c-7.8 19.6-22.9 34.7-42.6 42.6-29.5 11.7-99.5 9-132.1 9s-102.7 2.6-132.1-9c-19.6-7.8-34.7-22.9-42.6-42.6-11.7-29.5-9-99.5-9-132.1s-2.6-102.7 9-132.1c7.8-19.6 22.9-34.7 42.6-42.6 29.5-11.7 99.5-9 132.1-9s102.7-2.6 132.1 9c19.6 7.8 34.7 22.9 42.6 42.6 11.7 29.5 9 99.5 9 132.1s2.7 102.7-9 132.1"/></symbol><symbol id="ic-tiktok" viewBox="0 0 448 512"><path d="M448.5 209.9c-44 .1-87-13.6-122.8-39.2v178.7c0 33.1-10.1 65.4-29 92.6s-45.6 48-76.6 59.6-64.8 13.5-96.9 5.3-60.9-25.9-82.7-50.8-35.3-56-39-88.9 2.9-66.1 18.6-95.2 40-52.7 69.6-67.7 62.9-20.5 95.7-16v89.9c-15-4.7-31.1-4.6-46 .4s-27.9 14.6-37 27.3-14 28.1-13.9 43.9 5.2 31 14.5 43.7 22.4 22.1 37.4 26.9 31.1 4.8 46-.1 28-14.4 37.2-27.1 14.2-28.1 14.2-43.8V0h88c-.1 7.4.6 14.9 1.9 22.2 3.1 16.3 9.4 31.9 18.7 45.7s21.3 25.6 35.2 34.6c19.9 13.1 43.2 20.1 67 20.1V210z"/></symbol><symbol id="ic-whatsapp" viewBox="0 0 448 512"><path d="M380.9 97.1C339 55.1 283.2 32 223.9 32c-122.4 0-222 99.6-222 222 0 39.1 10.2 77.3 29.6 111L0 480l117.7-30.9c32.4 17.7 68.9 27 106.1 27h.1c122.3 0 224.1-99.6 224.1-222 0-59.3-25.2-115-67.1-157m-157 341.6c-33.2 0-65.7-8.9-94-25.7l-6.7-4-69.8 18.3L72 359.2l-4.4-7c-18.5-29.4-28.2-63.3-28.2-98.2 0-101.7 82.8-184.5 184.6-184.5 49.3 0 95.6 19.2 130.4 54.1s56.2 81.2 56.1 130.5c0 101.8-84.9 184.6-186.6 184.6m101.2-138.2c-5.5-2.8-32.8-16.2-37.9-18-5.1-1.9-8.8-2.8-12.5 2.8s-14.3 18-17.6 21.8c-3.2 3.7-6.5 4.2-12 1.4-32.6-16.3-54-29.1-75.5-66-5.7-9.8 5.7-9.1 16.3-30.3 1.8-3.7.9-6.9-.5-9.7s-12.5-30.1-17.1-41.2c-4.5-10.8-9.1-9.3-12.5-9.5-3.2-.2-6.9-.2-10.6-.2s-9.7 1.4-14.8 6.9c-5.1 5.6-19.4 19-19.4 46.3s19.9 53.7 22.6 57.4c2.8 3.7 39.1 59.7 94.8 83.8 35.2 15.2 49 16.5 66.6 13.9 10.7-1.6 32.8-13.4 37.4-26.4s4.6-24.1 3.2-26.4c-1.3-2.5-5-3.9-10.5-6.6"/></symbol></svg>
 
     <div class="banner-movimiento">
         <div class="contenido-movimiento">
@@ -643,14 +649,14 @@
         <a href="javascript:void(0)" class="nav-admin" onclick="abrirAdmin()" title="Administrador" aria-label="Acceso de administrador"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 12a5 5 0 1 0 0-10 5 5 0 0 0 0 10zm0 2c-4.4 0-8 2.2-8 5v3h16v-3c0-2.8-3.6-5-8-5z"/></svg></a>
         <div class="marca">LM <span>Custom Glow</span></div>
         <nav class="menu-navegacion" aria-label="Navegación principal">
-            <a href="javascript:void(0)" onclick="mostrarFavoritos()"><i class="fas fa-shopping-cart"></i> Carrito <span id="cart-count" class="fav-count">0</span></a>
+            <a href="javascript:void(0)" onclick="mostrarFavoritos()"><i class="ic"><svg aria-hidden="true"><use href="#ic-cart"/></svg></i> Carrito <span id="cart-count" class="fav-count">0</span></a>
             <a href="javascript:void(0)" onclick="abrirContacto()">Contacto</a>
         </nav>
     </header>
 
     <!-- HERO -->
     <section class="hero">
-        <img src="imagenes/logo-custom-glow.jpg" class="hero-logo" alt="LM Custom Glow - Joyería y Grabado Láser" width="1408" height="768">
+        <img src="imagenes/logo-custom-glow.jpg" class="hero-logo" alt="LM Custom Glow - Joyería y Grabado Láser" width="1120" height="610" fetchpriority="high" decoding="async">
         <p>Piezas únicas en acero inoxidable, grabadas con tu historia.</p>
         <div class="laser"></div>
     </section>
@@ -678,26 +684,26 @@
     <section class="personaliza" id="personalizado">
         <div class="personaliza-wrap">
             <div class="video-laser">
-                <video src="videos/laser-grabando.mp4" poster="imagenes/poster-laser.jpg" autoplay muted loop playsinline preload="metadata" aria-label="Máquina láser grabando una pulsera"></video>
+                <video id="videoLaser" data-src="videos/laser-grabando.mp4" poster="imagenes/poster-laser.jpg" muted loop playsinline preload="none" aria-label="Máquina láser grabando una pulsera"></video>
                 <span>Así grabamos tu pieza</span>
             </div>
             <div>
                 <h2>Hecho a tu medida</h2>
                 <p class="intro">Grabado láser de alta precisión: lo que quieras recordar, para siempre.</p>
                 <div class="caract">
-                    <i class="fas fa-signature"></i>
+                    <i class="ic"><svg aria-hidden="true"><use href="#ic-signature"/></svg></i>
                     <div><h4>Nombres e iniciales</h4><p>Tu nombre, el de tu pareja o unas iniciales que lo digan todo.</p></div>
                 </div>
                 <div class="caract">
-                    <i class="fas fa-calendar-days"></i>
+                    <i class="ic"><svg aria-hidden="true"><use href="#ic-calendar-days"/></svg></i>
                     <div><h4>Fechas especiales</h4><p>Aniversarios, cumpleaños o ese día que cambió todo. Hasta un calendario con tu fecha marcada.</p></div>
                 </div>
                 <div class="caract">
-                    <i class="fas fa-heart"></i>
+                    <i class="ic"><svg aria-hidden="true"><use href="#ic-heart"/></svg></i>
                     <div><h4>Frases, fotos y dibujos</h4><p>Versículos, mensajes, una foto o un dibujo grabados con precisión.</p></div>
                 </div>
                 <div style="margin-top:30px;">
-                    <a href="https://wa.me/584125000498?text=%C2%A1Hola%20LM%20Custom%20Glow!%20Quiero%20una%20pieza%20personalizada." target="_blank" rel="noopener" class="btn btn-oro"><i class="fab fa-whatsapp"></i> Cuéntanos tu idea</a>
+                    <a href="https://wa.me/584125000498?text=%C2%A1Hola%20LM%20Custom%20Glow!%20Quiero%20una%20pieza%20personalizada." target="_blank" rel="noopener" class="btn btn-oro"><i class="ic"><svg aria-hidden="true"><use href="#ic-whatsapp"/></svg></i> Cuéntanos tu idea</a>
                 </div>
             </div>
         </div>
@@ -708,17 +714,17 @@
         <h2 class="seccion-titulo">Tu confianza es nuestra prioridad</h2>
         <div class="grid-3">
             <div>
-                <i class="fas fa-shopping-cart"></i>
+                <i class="ic"><svg aria-hidden="true"><use href="#ic-cart"/></svg></i>
                 <h4>1. Elige</h4>
                 <p>Agrega tus piezas favoritas al carrito.</p>
             </div>
             <div>
-                <i class="fab fa-whatsapp"></i>
+                <i class="ic"><svg aria-hidden="true"><use href="#ic-whatsapp"/></svg></i>
                 <h4>2. Consulta</h4>
                 <p>Envíanos tu lista para confirmar detalles, grabado y precios.</p>
             </div>
             <div>
-                <i class="fas fa-box-open"></i>
+                <i class="ic"><svg aria-hidden="true"><use href="#ic-box-open"/></svg></i>
                 <h4>3. Paga y recibe</h4>
                 <p>Acordamos el pago y enviamos tu pedido, en su cajita de regalo.</p>
             </div>
@@ -736,25 +742,25 @@
         <h3>LM Custom Glow</h3>
         <div class="lema">Joyería &amp; Grabado Láser</div>
         <div class="redes">
-            <a href="https://www.instagram.com/lm_design_your_style?utm_source=qr&igsh=MXI5a2JnZmgyeDJzaQ==" target="_blank" rel="noopener" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
-            <a href="https://www.tiktok.com/@lmcreaciones_?is_from_webapp=1&sender_device=pc" target="_blank" rel="noopener" aria-label="TikTok"><i class="fab fa-tiktok"></i></a>
-            <a href="https://wa.me/584125000498" target="_blank" rel="noopener" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+            <a href="https://www.instagram.com/lm_design_your_style?utm_source=qr&igsh=MXI5a2JnZmgyeDJzaQ==" target="_blank" rel="noopener" aria-label="Instagram"><i class="ic"><svg aria-hidden="true"><use href="#ic-instagram"/></svg></i></a>
+            <a href="https://www.tiktok.com/@lmcreaciones_?is_from_webapp=1&sender_device=pc" target="_blank" rel="noopener" aria-label="TikTok"><i class="ic"><svg aria-hidden="true"><use href="#ic-tiktok"/></svg></i></a>
+            <a href="https://wa.me/584125000498" target="_blank" rel="noopener" aria-label="WhatsApp"><i class="ic"><svg aria-hidden="true"><use href="#ic-whatsapp"/></svg></i></a>
         </div>
         <p>&copy; 2026 Valencia, Venezuela · Todos los derechos reservados</p>
         <p>Envíos nacionales e internacionales</p>
     </footer>
 
-    <button type="button" id="carritoFlot" class="carrito-float vacio-c" onclick="mostrarFavoritos()" aria-label="Ver mi carrito"><i class="fas fa-shopping-cart"></i><span class="num" id="cart-flot-count">0</span></button>
-    <a href="https://wa.me/584125000498" class="whatsapp-float" target="_blank" rel="noopener" aria-label="Escríbenos por WhatsApp"><i class="fab fa-whatsapp"></i></a>
+    <button type="button" id="carritoFlot" class="carrito-float vacio-c" onclick="mostrarFavoritos()" aria-label="Ver mi carrito"><i class="ic"><svg aria-hidden="true"><use href="#ic-cart"/></svg></i><span class="num" id="cart-flot-count">0</span></button>
+    <a href="https://wa.me/584125000498" class="whatsapp-float" target="_blank" rel="noopener" aria-label="Escríbenos por WhatsApp"><i class="ic"><svg aria-hidden="true"><use href="#ic-whatsapp"/></svg></i></a>
 
     <!-- MODAL CONTACTO -->
     <div id="modalContacto" class="modal-fav" role="dialog" aria-modal="true" aria-label="Contacto">
         <div class="modal-content" style="text-align:center;">
             <button class="close-modal" onclick="cerrarContacto()" aria-label="Cerrar">&times;</button>
             <h3>Contáctanos</h3>
-            <a href="https://wa.me/584125000498" target="_blank" rel="noopener" class="btn-contacto btn-whatsapp"><i class="fab fa-whatsapp"></i> WhatsApp</a>
-            <a href="https://www.instagram.com/lm_design_your_style?utm_source=qr&igsh=MXI5a2JnZmgyeDJzaQ==" target="_blank" rel="noopener" class="btn-contacto btn-instagram"><i class="fab fa-instagram"></i> Instagram</a>
-            <a href="https://www.tiktok.com/@lmcreaciones_?is_from_webapp=1&sender_device=pc" target="_blank" rel="noopener" class="btn-contacto btn-tiktok"><i class="fab fa-tiktok"></i> TikTok</a>
+            <a href="https://wa.me/584125000498" target="_blank" rel="noopener" class="btn-contacto btn-whatsapp"><i class="ic"><svg aria-hidden="true"><use href="#ic-whatsapp"/></svg></i> WhatsApp</a>
+            <a href="https://www.instagram.com/lm_design_your_style?utm_source=qr&igsh=MXI5a2JnZmgyeDJzaQ==" target="_blank" rel="noopener" class="btn-contacto btn-instagram"><i class="ic"><svg aria-hidden="true"><use href="#ic-instagram"/></svg></i> Instagram</a>
+            <a href="https://www.tiktok.com/@lmcreaciones_?is_from_webapp=1&sender_device=pc" target="_blank" rel="noopener" class="btn-contacto btn-tiktok"><i class="ic"><svg aria-hidden="true"><use href="#ic-tiktok"/></svg></i> TikTok</a>
         </div>
     </div>
 
@@ -766,7 +772,7 @@
             <div id="listaFavoritos"></div>
             <p id="msgVacio" class="vacio">Tu carrito está vacío.</p>
             <a href="javascript:void(0)" id="btnEnviarTodo" class="btn-enviar-lista" onclick="enviarListaWhatsApp()">
-                <i class="fab fa-whatsapp"></i> Enviar mi pedido por WhatsApp
+                <i class="ic"><svg aria-hidden="true"><use href="#ic-whatsapp"/></svg></i> Enviar mi pedido por WhatsApp
             </a>
         </div>
     </div>
@@ -836,7 +842,7 @@
 
                         </div>
 
-                        <label>Fotos y video <small>(hasta 4 fotos · la primera es la principal · video opcional de hasta 5 MB, unos 40 segundos)</small></label>
+                        <label>Fotos y video <small>(hasta 4 fotos · la primera es la principal · el peso de fotos y video se ajusta solo)</small></label>
                         <div class="adm-fotos" id="adm-fotos"></div>
                         <input type="file" id="adm-archivos" accept="image/*" multiple hidden>
                         <input type="file" id="adm-archivoVideo" accept="video/*" hidden>
@@ -990,26 +996,29 @@
             if (g && !g.querySelector('.producto')) g.remove();
         }
 
+        // Las fotos subidas desde el panel tienen una versión chica (?m=1) para que el catálogo cargue rápido.
+        const chica = (src) => (String(src).startsWith('/api/img/') ? src + '?m=1' : src);
+        let tarjetasPintadas = 0;   // solo las primeras fotos cargan de inmediato; el resto, al acercarse
         function tarjeta(p) {
             return `
                 <article class="producto${agotado(p.id) ? ' agotado' : ''}" data-id="${p.id}">
                     <span class="etiqueta">${esc(p.tag || 'Personalizable')}</span>
-                    <button class="wishlist-btn" data-id="${p.id}" aria-label="Agregar ${esc(p.nombre)} al carrito"><i class="fas fa-shopping-cart"></i></button>
+                    <button class="wishlist-btn" data-id="${p.id}" aria-label="Agregar ${esc(p.nombre)} al carrito"><i class="ic"><svg aria-hidden="true"><use href="#ic-cart"/></svg></i></button>
                     <div class="imagen-box">
                         ${agotado(p.id) ? '<span class="sello-agotado">Agotado</span>' : ''}
                         <div class="slides">${p.imgs.map((src, i) =>
-                            `<img src="${esc(src)}" alt="${esc(p.nombre)}${i ? ' ' + (i + 1) : ''}" loading="${i ? 'lazy' : 'eager'}" draggable="false" style="object-position:${esc(p.pos || 'center')}"
+                            `<img src="${esc(chica(src))}" alt="${esc(p.nombre)}${i ? ' ' + (i + 1) : ''}" loading="${(i || tarjetasPintadas++ >= 6) ? 'lazy' : 'eager'}" decoding="async" draggable="false" style="object-position:${esc(p.pos || 'center')}"
                                   onerror="${i === 0 ? 'quitarTarjeta(this)' : 'this.remove()'}">`).join('')}</div>
                         ${p.imgs.length > 1 ? `<span class="contador-fotos">1 / ${p.imgs.length}</span>` : ''}
-                        ${p.video ? `<span class="play-badge" data-video="${p.id}"><i class="fas fa-play"></i> Ver video</span>` : ''}
+                        ${p.video ? `<span class="play-badge" data-video="${p.id}"><i class="ic"><svg aria-hidden="true"><use href="#ic-play"/></svg></i> Ver video</span>` : ''}
                     </div>
                     ${p.imgs.length > 1 ? `<div class="thumbs">${p.imgs.map((src, i) =>
-                        `<button class="${i === 0 ? 'on' : ''}" data-src="${esc(src)}" aria-label="Ver foto ${i + 1}"><img src="${esc(src)}" alt="" loading="lazy"></button>`).join('')}</div>` : ''}
+                        `<button class="${i === 0 ? 'on' : ''}" data-src="${esc(src)}" aria-label="Ver foto ${i + 1}"><img src="${esc(chica(src))}" alt="" loading="lazy" decoding="async"></button>`).join('')}</div>` : ''}
                     <div class="info">
                         <h3>${esc(p.nombre)}</h3>
                         <span class="precio">${precioHTML(p)}</span>
                         <div class="acciones">
-                            ${p.video ? `<button class="btn-video" data-video="${p.id}"><i class="fas fa-circle-play"></i> Ver video</button>` : ''}
+                            ${p.video ? `<button class="btn-video" data-video="${p.id}"><i class="ic"><svg aria-hidden="true"><use href="#ic-circle-play"/></svg></i> Ver video</button>` : ''}
                             <a class="btn-pedir" target="_blank" rel="noopener"
                                href="${waLink('¡Hola LM Custom Glow! 👋 Me interesa: ' + p.nombre)}">
                                 ${agotado(p.id) ? 'Agotado' : '<span class="largo">Pedir este modelo</span><span class="corto">Pedir</span>'}
@@ -1026,6 +1035,7 @@
                            ...productos.filter(p => p.dinamico).sort((a, b) => (a.creado || 0) - (b.creado || 0))]
                 .filter(p => !ajustes.ocultos.includes(p.id));
             let html = '';
+            tarjetasPintadas = 0;
             const grupos = categorias().map((c) => [c.id, c.nombre]);
             // Por seguridad: si un producto quedó con una categoría que ya no existe, se muestra en "Otros".
             if (cat === 'todas' && orden.some((p) => !grupos.some(([id]) => id === p.cat[0]))) grupos.push(['_otros', 'Otros']);
@@ -1119,9 +1129,9 @@
             lista.innerHTML = wishlist.filter(disponible).map(id => {
                 const p = porId[id];
                 return `<div class="item-fav">
-                    <img src="${esc(p.imgs[0])}" alt="">
+                    <img src="${esc(chica(p.imgs[0]))}" alt="" loading="lazy" decoding="async">
                     <h4>${esc(p.nombre)}</h4>
-                    <button onclick="toggleWishlist('${esc(p.id)}')" aria-label="Quitar ${esc(p.nombre)}"><i class="fas fa-trash"></i></button>
+                    <button onclick="toggleWishlist('${esc(p.id)}')" aria-label="Quitar ${esc(p.nombre)}"><i class="ic"><svg aria-hidden="true"><use href="#ic-trash"/></svg></i></button>
                 </div>`;
             }).join('');
         }
@@ -1147,7 +1157,7 @@
             document.getElementById('galSlides').innerHTML = imgs.map((src, i) =>
                 `<div class="gal-slide"><img src="${esc(src)}" alt="${esc(p.nombre)} ${i + 1}" draggable="false"></div>`).join('');
             document.getElementById('galThumbs').innerHTML = imgs.map((src, i) =>
-                `<button type="button" data-i="${i}" aria-label="Ver foto ${i + 1}"><img src="${esc(src)}" alt=""></button>`).join('');
+                `<button type="button" data-i="${i}" aria-label="Ver foto ${i + 1}"><img src="${esc(chica(src))}" alt=""></button>`).join('');
             const ov = document.getElementById('overlay');
             ov.classList.toggle('una', imgs.length < 2);
             ov.classList.add('abierto');
@@ -1369,17 +1379,24 @@
                     const url = URL.createObjectURL(archivo);
                     const img = new Image();
                     img.onload = () => {
-                        const k = Math.min(1, max / Math.max(img.width, img.height));
-                        const w = Math.round(img.width * k), h = Math.round(img.height * k);
-                        const c = document.createElement('canvas');
-                        c.width = w; c.height = h;
-                        const x = c.getContext('2d');
-                        x.fillStyle = '#fff'; x.fillRect(0, 0, w, h);
-                        x.drawImage(img, 0, 0, w, h);
+                        // Se achica sola: primero a 1100 px con buena calidad y, si aún pesa mucho, se baja poco a poco.
+                        const pasos = [[max, calidad], [max, 0.7], [900, 0.7], [800, 0.6], [640, 0.55]];
+                        let resultado = '';
+                        for (const [lado, q] of pasos) {
+                            const k = Math.min(1, lado / Math.max(img.width, img.height));
+                            const w = Math.max(1, Math.round(img.width * k)), h = Math.max(1, Math.round(img.height * k));
+                            const c = document.createElement('canvas');
+                            c.width = w; c.height = h;
+                            const x = c.getContext('2d');
+                            x.fillStyle = '#fff'; x.fillRect(0, 0, w, h);
+                            x.drawImage(img, 0, 0, w, h);
+                            resultado = c.toDataURL('image/jpeg', q);
+                            if ((resultado.length - 23) * 0.75 <= 900000) break;   // 4 fotos juntas deben caber en una sola petición
+                        }
                         URL.revokeObjectURL(url);
-                        ok(c.toDataURL('image/jpeg', calidad));
+                        ok(resultado);
                     };
-                    img.onerror = () => { URL.revokeObjectURL(url); mal(new Error('No pude leer una de las fotos. Prueba con otra.')); };
+                    img.onerror = () => { URL.revokeObjectURL(url); mal(new Error('No pude leer una de las fotos. Prueba con otra (JPG, PNG o WebP).')); };
                     img.src = url;
                 });
             }
@@ -1404,39 +1421,78 @@
             function recomprimirVideo(archivo, progreso) {
                 return new Promise((ok, mal) => {
                     if (!window.MediaRecorder || !HTMLCanvasElement.prototype.captureStream) {
-                        mal(new Error('Este navegador no puede comprimir el video. Usa uno de hasta 5 MB.')); return;
+                        mal(new Error('Este navegador no puede comprimir el video. Actualiza el navegador o usa un video más corto.')); return;
                     }
                     const url = URL.createObjectURL(archivo);
                     const v = document.createElement('video');
-                    v.muted = true; v.playsInline = true; v.preload = 'auto'; v.src = url;
-                    const limpiar = () => URL.revokeObjectURL(url);
-                    v.onerror = () => { limpiar(); mal(new Error('No pude leer ese video. Prueba con otro (MP4).')); };
-                    v.onloadedmetadata = () => {
-                        if (!isFinite(v.duration) || v.duration > 45) { limpiar(); mal(new Error('El video dura demasiado: máximo unos 40 segundos. Recórtalo e inténtalo de nuevo.')); return; }
-                        const k = Math.min(1, 640 / Math.max(v.videoWidth, v.videoHeight));
+                    // Safari (iPhone) solo decodifica con fiabilidad un <video> que esté en la página, mudo y "playsinline".
+                    v.muted = true; v.defaultMuted = true; v.playsInline = true; v.preload = 'auto';
+                    v.setAttribute('muted', ''); v.setAttribute('playsinline', ''); v.setAttribute('webkit-playsinline', '');
+                    v.style.cssText = 'position:fixed;left:0;top:0;width:2px;height:2px;opacity:0.01;pointer-events:none;';
+                    document.body.appendChild(v);
+                    let terminado = false, empezado = false, vigilante = null, espera = null;
+                    const limpiar = () => {
+                        terminado = true; clearTimeout(espera); clearInterval(vigilante);
+                        try { v.pause(); v.removeAttribute('src'); v.load(); } catch (e) { /* nada */ }
+                        v.remove(); URL.revokeObjectURL(url);
+                    };
+                    const fallar = (m) => { if (terminado) return; limpiar(); mal(new Error(m)); };
+                    espera = setTimeout(() => fallar('El video tardó demasiado en abrirse. Prueba con otro.'), 25000);
+                    v.onerror = () => fallar('No pude leer ese video. Prueba con otro (MP4).');
+
+                    const empezar = () => {
+                        if (empezado || terminado || !v.videoWidth || !isFinite(v.duration) || !v.duration) return;
+                        empezado = true; clearTimeout(espera);
+                        if (v.duration > 120) { fallar('El video dura más de 2 minutos. Recórtalo e inténtalo de nuevo.'); return; }
+                        // La calidad se calcula según la duración para que el resultado siempre quepa (≈4,3 MB como máximo).
+                        const bps = Math.max(150000, Math.min(1500000, Math.floor(4300000 * 8 / v.duration) - 64000));
+                        const lado = bps >= 900000 ? 720 : bps >= 500000 ? 640 : 480;
+                        const k = Math.min(1, lado / Math.max(v.videoWidth, v.videoHeight));
                         const c = document.createElement('canvas');
                         c.width = Math.max(2, Math.round(v.videoWidth * k) & ~1);
                         c.height = Math.max(2, Math.round(v.videoHeight * k) & ~1);
                         const x = c.getContext('2d');
                         const flujo = c.captureStream(24);
+                        // El sonido se conserva donde el navegador lo permite (Chrome); en iPhone el video comprimido queda sin sonido.
                         try { (v.captureStream ? v.captureStream() : v.mozCaptureStream()).getAudioTracks().forEach((t) => flujo.addTrack(t)); } catch (e) { /* sin sonido */ }
-                        const tipo = ['video/webm;codecs=vp9', 'video/webm;codecs=vp8', 'video/webm', 'video/mp4'].find((t) => MediaRecorder.isTypeSupported(t));
-                        if (!tipo) { limpiar(); mal(new Error('Este navegador no puede comprimir el video. Usa uno de hasta 5 MB.')); return; }
-                        const rec = new MediaRecorder(flujo, { mimeType: tipo, videoBitsPerSecond: 700000, audioBitsPerSecond: 64000 });
+                        // MP4/H.264 primero: se ve en todos los teléfonos (iPhone incluido); WebM solo si no hay otra opción.
+                        const tipo = ['video/mp4;codecs=avc1.42E01E,mp4a.40.2', 'video/mp4;codecs=avc1', 'video/mp4', 'video/webm;codecs=vp9', 'video/webm;codecs=vp8', 'video/webm']
+                            .find((t) => MediaRecorder.isTypeSupported(t));
+                        if (!tipo) { fallar('Este navegador no puede comprimir el video. Actualiza el navegador o usa un video más corto.'); return; }
+                        let rec;
+                        try { rec = new MediaRecorder(flujo, { mimeType: tipo, videoBitsPerSecond: bps, audioBitsPerSecond: 64000 }); }
+                        catch (e) { try { rec = new MediaRecorder(flujo); } catch (e2) { fallar('Este navegador no puede comprimir el video. Actualiza el navegador o usa un video más corto.'); return; } }
                         const trozos = [];
                         rec.ondataavailable = (e) => { if (e.data && e.data.size) trozos.push(e.data); };
-                        rec.onstop = () => { limpiar(); ok(new Blob(trozos, { type: tipo.split(';')[0] })); };
-                        let vivo = true;
+                        rec.onerror = () => fallar('Falló la compresión del video. Prueba con otro.');
+                        rec.onstop = () => {
+                            if (terminado) return;
+                            const mime = (rec.mimeType || tipo).split(';')[0];
+                            limpiar();
+                            const blob = new Blob(trozos, { type: mime });
+                            if (!blob.size) mal(new Error('No se pudo comprimir el video. Prueba con otro.')); else ok(blob);
+                        };
+                        let vivo = true, ultimo = -1, quieto = 0;
                         const pintar = () => {
-                            if (!vivo) return;
-                            x.drawImage(v, 0, 0, c.width, c.height);
+                            if (!vivo || terminado) return;
+                            try { x.drawImage(v, 0, 0, c.width, c.height); } catch (e) { /* cuadro no listo */ }
                             progreso(Math.min(99, Math.round(100 * v.currentTime / v.duration)));
                             requestAnimationFrame(pintar);
                         };
-                        v.onended = () => { vivo = false; setTimeout(() => rec.stop(), 150); };
-                        rec.start(500);
-                        v.play().then(pintar).catch(() => { vivo = false; limpiar(); mal(new Error('No pude procesar el video. Prueba con uno más corto.')); });
+                        // Si el video se queda trabado (pasa en algunos teléfonos), se avisa en vez de quedar cargando para siempre.
+                        vigilante = setInterval(() => {
+                            if (v.currentTime === ultimo && !v.ended) { if (++quieto >= 5) fallar('El video se detuvo mientras se comprimía. Prueba con otro o más corto.'); } else { quieto = 0; ultimo = v.currentTime; }
+                        }, 2000);
+                        v.onended = () => { vivo = false; setTimeout(() => { if (!terminado && rec.state !== 'inactive') rec.stop(); }, 250); };
+                        try { rec.start(500); } catch (e) { fallar('No pude iniciar la compresión del video.'); return; }
+                        const r = v.play();
+                        if (r && r.then) r.then(pintar).catch(() => { vivo = false; fallar('El navegador no dejó procesar el video. Prueba con otro.'); }); else pintar();
                     };
+                    v.addEventListener('loadedmetadata', empezar);
+                    v.addEventListener('loadeddata', empezar);
+                    v.addEventListener('canplay', empezar);
+                    v.src = url;
+                    v.load();
                 });
             }
             async function prepararVideo(archivo) {
@@ -1444,11 +1500,21 @@
                 const tipoOk = /^video\/(mp4|webm)$/.test(archivo.type);
                 let blob = archivo;
                 if (!tipoOk || archivo.size > MAX_VIDEO) {
-                    est.textContent = 'Comprimiendo el video… 0 % (no cierres esta pantalla)';
-                    blob = await recomprimirVideo(archivo, (n) => { est.textContent = `Comprimiendo el video… ${n} % (no cierres esta pantalla)`; });
+                    est.textContent = 'Comprimiendo el video… 0 % (tarda lo que dura el video; no cierres esta pantalla)';
+                    try {
+                        blob = await recomprimirVideo(archivo, (n) => { est.textContent = `Comprimiendo el video… ${n} % (tarda lo que dura el video; no cierres esta pantalla)`; });
+                    } catch (err) {
+                        // Si el teléfono no pudo comprimirlo pero ya es liviano, se sube tal cual en vez de rechazarlo.
+                        const cab = new Uint8Array(await archivo.slice(0, 12).arrayBuffer());
+                        const esMp4 = String.fromCharCode(cab[4], cab[5], cab[6], cab[7]) === 'ftyp';
+                        const esWebm = cab[0] === 0x1a && cab[1] === 0x45 && cab[2] === 0xdf && cab[3] === 0xa3;
+                        if (archivo.size <= MAX_VIDEO && /^video\/(quicktime|mp4|webm)$/.test(archivo.type) && (esMp4 || esWebm)) {
+                            blob = new Blob([archivo], { type: archivo.type === 'video/webm' ? 'video/webm' : 'video/mp4' });
+                        } else { throw err; }
+                    }
                 }
                 if (blob.size > MAX_VIDEO) {
-                    throw new Error(`El video pesa ${(blob.size / 1e6).toFixed(1)} MB y el máximo es 5 MB. Recórtalo o mándatelo por WhatsApp y descarga esa versión (viene comprimida).`);
+                    throw new Error(`Aun comprimido, el video pesa ${(blob.size / 1e6).toFixed(1)} MB y no cabe. Prueba con uno más corto.`);
                 }
                 return blob;
             }
@@ -1491,7 +1557,7 @@
                 e.target.value = '';
                 A('errForm').textContent = '';
                 for (const f of elegidos) {
-                    try { fotosAdm.push({ data: await redimensionar(f) }); }
+                    try { fotosAdm.push({ data: await redimensionar(f), mini: await redimensionar(f, 480, 0.72) }); }
                     catch (err) { A('errForm').textContent = err.message; }
                 }
                 dibujarFotos();
@@ -1541,6 +1607,7 @@
                     nombre, precio: A('precio').value,
                     mantener: fotosAdm.filter((f) => f.url).map((f) => f.url),
                     nuevas: fotosAdm.filter((f) => f.data).map((f) => f.data),
+                    minis: fotosAdm.filter((f) => f.data).map((f) => f.mini || ''),
                     video: '',
                 };
                 // En los de fábrica solo se envía la categoría si la cambió (algunos están en dos categorías).
@@ -1586,7 +1653,7 @@
                        <button class="adm-btn adm-peligro adm-chico" data-borrar="${esc(p.id)}">Eliminar</button>`;
                 return `
                     <div class="adm-item${oculto ? ' apagado' : ''}">
-                        <img src="${esc(p.imgs[0])}" alt="">
+                        <img src="${esc(chica(p.imgs[0]))}" alt="" loading="lazy" decoding="async">
                         <div class="adm-datos">
                             <strong>${esc(p.nombre)}</strong>
                             <span>${esc(precio ? '€' + precio.replace(/^€/, '') : 'Consultar precio')} · ${esc((p.cat || []).map(nombreCat).join(', '))}${etiquetas}</span>
@@ -1909,6 +1976,19 @@
             });
 
             if (location.hash === '#admin') abrir();
+        })();
+
+        /* ---------- Video del láser: se carga y reproduce solo cuando se acerca a la pantalla ---------- */
+        (() => {
+            const v = document.getElementById('videoLaser');
+            if (!v) return;
+            const iniciar = () => { if (!v.src) v.src = v.dataset.src; const r = v.play(); if (r && r.catch) r.catch(() => {}); };
+            if (!('IntersectionObserver' in window)) { iniciar(); return; }
+            new IntersectionObserver((es, ob) => {
+                for (const e of es) {
+                    if (e.isIntersecting) { iniciar(); } else if (v.src) { v.pause(); }
+                }
+            }, { rootMargin: '300px' }).observe(v);
         })();
 
         /* ---------- INICIO ---------- */

@@ -1,0 +1,5 @@
+# Caché del navegador: las fotos y videos fijos no se vuelven a descargar en cada visita (1 día).
+/imagenes/*
+  Cache-Control: public, max-age=86400
+/videos/*
+  Cache-Control: public, max-age=86400

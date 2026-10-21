@@ -14,6 +14,7 @@ ARCHIVOS  (todo va en la RAÍZ del repositorio, sin carpeta envolvente)
   netlify/functions/catalogo.mjs  ← el "servidor": guarda productos, fotos, agotados y tasa
   package.json                ← le dice a Netlify que instale @netlify/blobs
   .gitignore
+  _headers                    ← caché del navegador (fotos y videos fijos)
 NO crear netlify.toml: la configuración se hace en el panel de Netlify (abajo).
 
 ────────────────────────────────────────────────────────
@@ -108,10 +109,18 @@ FOTOS Y VIDEO EN TODOS LOS PRODUCTOS: al crear o editar cualquier producto (incl
 "Agregar foto" y "Agregar video" lado a lado. En los productos de fábrica, "Editar" permite cambiar título, precio,
 fotos (agregar, quitar, reemplazar) y video; "Volver al original" deshace esos cambios. Esos cambios viven en Netlify
 (no tocan index.html) y también se copian a GitHub (respaldo/fotos, respaldo/videos, respaldo/productos.json).
-Video: MP4 o WebM de hasta 5 MB (unos 40 segundos). Si pesa más, el panel intenta comprimirlo solo en el navegador
-(tarda lo que dura el video y puede perder el sonido); si aun así no baja de 5 MB, pide recortarlo.
-
-BÚSQUEDA EN EL PANEL: en "Mis productos" hay una barra para buscar por nombre y un selector para filtrar por categoría.
+PESO AUTOMÁTICO: el cliente no tiene que reducir nada.
+  - Fotos: se achican solas (~1100 px y, si hace falta, menos) y además se guarda una miniatura de ~480 px que usan las
+    tarjetas del catálogo, para que abra rápido aun con muchos productos. Al tocar una foto se ve la completa.
+  - Videos: los MP4/WebM de hasta 5 MB se suben tal cual. Los más pesados, y los de iPhone (.MOV), se comprimen solos en el
+    navegador a MP4 (H.264, se ve en iPhone, Android y computador), con calidad calculada según la duración (hasta 2 minutos).
+    Tarda lo que dura el video. En iPhone el video comprimido queda sin sonido. Si el teléfono no puede comprimir y el video
+    ya pesa menos de 5 MB, se sube sin comprimir.
+VELOCIDAD DE LA TIENDA: no usa librerías externas de íconos (están incrustados; Font Awesome Free, licencia CC BY 4.0),
+las tipografías cargan sin bloquear la página, las fotos de más abajo cargan al acercarse, el video del láser solo se
+descarga cuando se llega a esa sección, el fondo es compatible con iPhone y el archivo _headers guarda en el navegador
+las fotos y videos fijos por 1 día (si cambias una foto fija con el mismo nombre, puede tardar hasta 1 día en verse).
+  (No borres el archivo _headers.)
 
 LÍMITES DEL PANEL: hasta 150 productos, 4 fotos y 1 video por producto (las fotos se reducen solas a ~1100 px).
 Netlify gratis es suficiente para este uso.
