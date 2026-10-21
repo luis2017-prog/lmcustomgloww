@@ -2,6 +2,16 @@
   "aviso": "Copia automática hecha desde el panel de administrador. No la edites a mano: se reescribe en cada cambio.",
   "productos": [
     {
+      "id": "nmvijedqlbf1746",
+      "nombre": "Dijes",
+      "precio": "",
+      "cat": "collares",
+      "imgs": [
+        "respaldo/fotos/e860fe92a43cf5f25c65a375.jpg"
+      ],
+      "creado": 1792612837389
+    },
+    {
       "id": "nmvh1k59tc2ccf3",
       "nombre": "Placa militar plateado",
       "desc": "",
