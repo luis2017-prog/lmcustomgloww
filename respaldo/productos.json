@@ -66,6 +66,15 @@
       "p8": "28",
       "p9": "30"
     },
+    "fijos": {
+      "p3": {
+        "nombre": "Pulsera Caballero Personalizada",
+        "imgs": [
+          "imagenes/pulsera-caballero.jpg"
+        ],
+        "video": ""
+      }
+    },
     "tasaModo": "auto",
     "tasaManual": null,
     "tasaManualFecha": null
