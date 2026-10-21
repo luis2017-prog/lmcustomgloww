@@ -283,8 +283,9 @@
         }
         .info { padding: 22px 22px 24px; flex-grow: 1; display: flex; flex-direction: column; }
         .info h3 { margin: 0; font-size: 1.45rem; font-weight: 700; }
-        .precio { color: var(--dorado); font-size: 1.05rem; font-weight: 700; display: block; margin: 8px 0; letter-spacing: 1px; }
-        .info p { margin: 0 0 18px; color: #444; flex-grow: 1; }
+        .precio { color: var(--dorado); font-size: 1.7rem; font-weight: 700; line-height: 1.1; display: block; margin: 10px 0 18px; letter-spacing: 0.5px; flex-grow: 1; }
+        .acciones { margin-top: auto; }
+        .precio .consultar { font-size: 0.7em; font-weight: 600; }
         .btn-pedir {
             font-family: var(--sans);
             display: block; text-decoration: none;
@@ -503,7 +504,7 @@
 
         .tasa-dia { text-align: center; margin: 0 14px 16px; font-family: var(--sans); font-size: 0.74rem; letter-spacing: 1px; color: #5a4a1a; }
         .tasa-dia b { display: inline-block; background: var(--oscuro); color: var(--dorado-claro); padding: 7px 14px; border-radius: 20px; letter-spacing: 1px; }
-        .precio small.bs { display: block; color: #6b6159; font-size: 0.74rem; font-weight: 500; letter-spacing: 0.5px; margin-top: 2px; }
+        .precio small.bs { display: block; color: #5a5048; font-size: 1.05rem; font-weight: 600; letter-spacing: 0.3px; margin-top: 4px; }
         .producto.agotado .imagen-box img { filter: grayscale(0.9) brightness(0.8); }
         .sello-agotado { position: absolute; left: 50%; top: 42%; transform: translate(-50%,-50%) rotate(-8deg); z-index: 9; pointer-events: none;
             background: rgba(13,11,10,0.88); color: #fff; border: 2px solid #e74c3c; padding: 10px 26px; border-radius: 4px;
@@ -607,9 +608,8 @@
             .contador-fotos { right: 5px; bottom: 5px; font-size: 0.5rem; padding: 2px 6px; }
             .info { padding: 8px 6px 10px; }
             .info h3 { font-size: 0.82rem; line-height: 1.15; }
-            .precio { font-size: 0.78rem; margin: 5px 0; letter-spacing: 0; }
-            .precio small.bs { font-size: 0.62rem; }
-            .info p { font-size: 0.7rem; line-height: 1.25; margin-bottom: 8px; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+            .precio { font-size: 1.08rem; margin: 6px 0 8px; letter-spacing: 0; }
+            .precio small.bs { font-size: 0.74rem; margin-top: 2px; }
             .btn-pedir, .btn-video { padding: 7px 2px; font-size: 0.5rem; letter-spacing: 0.5px; }
             .btn-video { gap: 4px; }
             .btn-pedir .largo { display: none; }
@@ -806,12 +806,10 @@
                         <label for="adm-nombre">Título</label>
                         <input type="text" id="adm-nombre" maxlength="80" placeholder="Ej: Pulsera Corazón Dorado">
 
-                        <label for="adm-desc">Descripción <small>(opcional)</small></label>
-                        <textarea id="adm-desc" maxlength="400" placeholder="Cuenta de qué material es, qué se puede grabar, tamaño…"></textarea>
-
                         <label for="adm-precio">Precio en euros € <small>(opcional — si lo dejas vacío dice “Consultar precio”)</small></label>
                         <input type="text" id="adm-precio" inputmode="decimal" maxlength="20" placeholder="Ej: 15">
 
+                        <div id="adm-completos">
                         <label for="adm-cat">Categoría</label>
                         <select id="adm-cat">
                             <option value="">Elige una…</option>
@@ -824,6 +822,7 @@
                         <label>Fotos <small>(hasta 4 · la primera es la principal)</small></label>
                         <div class="adm-fotos" id="adm-fotos"></div>
                         <input type="file" id="adm-archivos" accept="image/*" multiple hidden>
+                        </div>
 
                         <p class="adm-error" id="adm-errForm" role="alert"></p>
                         <div class="adm-fila">
@@ -848,6 +847,13 @@
                         <input type="file" id="adm-archivoCopia" accept=".json,application/json" hidden>
                     </div>
                     <p class="adm-sub" id="adm-estadoCopia" style="margin:14px 0 0"></p>
+                    <hr style="border:0;border-top:1px solid rgba(255,255,255,0.12);margin:20px 0">
+                    <h2 style="font-size:1.05rem">Respaldo automático en GitHub</h2>
+                    <p class="adm-sub">Cada foto y producto que publiques se guarda solo en la carpeta <b>respaldo</b> del repositorio.</p>
+                    <p class="adm-sub" id="adm-estadoGit" style="margin:8px 0 0"></p>
+                    <div class="adm-fila" style="margin-top:12px">
+                        <button type="button" class="adm-btn adm-borde" id="adm-btnGit">Respaldar ahora</button>
+                    </div>
                 </section>
             </div>
         </div>
@@ -878,23 +884,23 @@
         const productos = [
             { id: 'p1', cat: ['parejas'], nombre: 'Esclavas Dúo Grabadas',
               imgs: ['imagenes/esclavas-duo.jpg'],
-              desc: 'Set para dos en acero inoxidable con grabado láser de alta precisión.', precio: null },
+              precio: null },
             { id: 'p2', cat: ['parejas'], nombre: 'Pulseras Corazón Unido',
               imgs: ['imagenes/pulseras-corazon.jpg'],
-              desc: 'Dije complementario que une a la pareja. Con iniciales y fecha a tu gusto.', precio: null },
+              precio: null },
             { id: 'p7', cat: ['parejas', 'collares'], nombre: 'Collar Corazón Partido Plateado',
               imgs: ['imagenes/collar-corazon-partido.jpg'], pos: 'center 62%',
-              desc: 'Dos mitades que encajan, una para cada quien. Grabadas con la frase, versículo o iniciales que elijas. Va en cajita de regalo.', precio: null, tag: 'Nuevo' },
+              precio: null, tag: 'Nuevo' },
             { id: 'p3', cat: ['caballero'], nombre: 'Pulsera Caballero Personalizada',
               imgs: ['imagenes/pulsera-caballero.jpg'],
-              desc: 'Diseño masculino con placa lista para grabar nombre, fecha o símbolo.', precio: null },
+              precio: null },
             { id: 'p8', cat: ['llaveros'], nombre: 'Set de Llaveros Grabados',
               imgs: ['imagenes/llaveros-calendario.jpg', 'imagenes/llaveros-moto.jpg', 'imagenes/llavero-calendario-casco.jpg'], pos: 'center 60%',
-              desc: 'Llaveros en acero con placa grabada (calendario con tu fecha especial y foto, frase o dibujo) y casco con nombre. Ideales para parejas.', precio: null, tag: 'Nuevo' },
+              precio: null, tag: 'Nuevo' },
             { id: 'p9', cat: ['collares'], nombre: 'Set Libro + Pulserita',
               imgs: ['imagenes/set-libro-pulsera.jpg'], pos: 'center 62%',
               video: 'videos/demostracion-libro.mp4', poster: 'imagenes/poster-libro.jpg',
-              desc: 'Dije en forma de libro que se abre, con mensajes grabados en sus páginas, más una pulsera con nombre. Mira el video para verlo abierto.', precio: null, tag: 'Con video' }
+              precio: null, tag: 'Con video' }
         ];
 
         const miTelefono = "584125000498";
@@ -922,7 +928,7 @@
         const fmt = (n) => n.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
         function precioHTML(p) {
             const raw = String(precioDe(p)).trim();
-            if (!raw) return 'Consultar precio';
+            if (!raw) return '<span class="consultar">Consultar precio</span>';
             const n = parseFloat(raw.replace(',', '.').replace(/[^\d.]/g, ''));
             if (!isFinite(n)) return esc(raw);
             return `€${fmt(n)}` + (tasa && tasa.valor ? `<small class="bs">Bs ${fmt(n * tasa.valor)}</small>` : '');
@@ -967,7 +973,6 @@
                     <div class="info">
                         <h3>${esc(p.nombre)}</h3>
                         <span class="precio">${precioHTML(p)}</span>
-                        <p>${esc(p.desc)}</p>
                         <div class="acciones">
                             ${p.video ? `<button class="btn-video" data-video="${p.id}"><i class="fas fa-circle-play"></i> Ver video</button>` : ''}
                             <a class="btn-pedir" target="_blank" rel="noopener"
@@ -1190,7 +1195,7 @@
                 const nuevos = lista
                     .filter(d => d && d.id && d.nombre && Array.isArray(d.imgs) && d.imgs.length)
                     .map(d => ({
-                        id: d.id, dinamico: true, creado: d.creado || 0, cat: [d.cat], nombre: d.nombre, desc: d.desc || '',
+                        id: d.id, dinamico: true, creado: d.creado || 0, cat: [d.cat], nombre: d.nombre,
                         precio: d.precio || null, imgs: d.imgs,
                         tag: d.creado > reciente ? 'Nuevo' : 'Personalizable'
                     }));
@@ -1214,6 +1219,7 @@
             try { clave = sessionStorage.getItem('lm_admin') || ''; } catch (e) {}
             let fotosAdm = [];      // { url } (ya guardada) o { data } (nueva)
             let editandoId = null;
+            let editandoFijo = null; // id de un producto de fábrica (solo se cambia su precio)
             let lista = [];
 
             function aviso(texto, mal = false) {
@@ -1256,6 +1262,7 @@
             function mostrarPanel() {
                 A('login').hidden = true; A('panel').hidden = false; A('salir').hidden = false;
                 cargarLista(); dibujarFotos();
+                if (window.adminEstadoGit) window.adminEstadoGit();
             }
             function abrir() {
                 ov.hidden = false;
@@ -1343,6 +1350,9 @@
             /* ----- formulario ----- */
             function limpiarForm() {
                 editandoId = null;
+                editandoFijo = null;
+                A('nombre').readOnly = false;
+                A('completos').hidden = false;
                 A('formProducto').reset();
                 fotosAdm = [];
                 dibujarFotos();
@@ -1357,12 +1367,28 @@
             A('formProducto').addEventListener('submit', async (e) => {
                 e.preventDefault();
                 A('errForm').textContent = '';
+                if (editandoFijo) {
+                    const p = porId[editandoFijo];
+                    const v = A('precio').value.trim();
+                    const precios = { ...ajustes.precios };
+                    if (v) precios[editandoFijo] = v; else delete precios[editandoFijo];
+                    A('btnGuardar').disabled = true;
+                    try {
+                        await guardarAjustes({ precios });
+                        limpiarForm();
+                        aviso(`Precio de “${p ? p.nombre : 'producto'}” guardado ✓`);
+                    } catch (err) {
+                        if (err.status === 401) { salir(); return; }
+                        A('errForm').textContent = err.message;
+                    } finally { A('btnGuardar').disabled = false; }
+                    return;
+                }
                 const nombre = A('nombre').value.trim();
                 if (!nombre) { A('errForm').textContent = 'Escribe el título del producto.'; A('nombre').focus(); return; }
                 if (!A('cat').value) { A('errForm').textContent = 'Elige una categoría.'; A('cat').focus(); return; }
                 if (!fotosAdm.length) { A('errForm').textContent = 'Agrega al menos una foto.'; return; }
                 const cuerpo = {
-                    nombre, desc: A('desc').value, precio: A('precio').value, cat: A('cat').value,
+                    nombre, precio: A('precio').value, cat: A('cat').value,
                     mantener: fotosAdm.filter((f) => f.url).map((f) => f.url),
                     nuevas: fotosAdm.filter((f) => f.data).map((f) => f.data),
                 };
@@ -1396,7 +1422,7 @@
                 const acciones = oculto
                     ? `<button class="adm-btn adm-oro adm-chico" data-restaurar="${esc(p.id)}">Volver a mostrar</button>`
                     : `${dinamico ? `<button class="adm-btn adm-borde adm-chico" data-editar="${esc(p.id)}">Editar</button>`
-                                  : `<button class="adm-btn adm-borde adm-chico" data-precio="${esc(p.id)}">Precio</button>`}
+                                  : `<button class="adm-btn adm-borde adm-chico" data-editar-fijo="${esc(p.id)}">Editar</button>`}
                        <button class="adm-btn adm-borde adm-chico" data-agotado="${esc(p.id)}">${ago ? 'Hay existencia' : 'Marcar agotado'}</button>
                        <button class="adm-btn adm-peligro adm-chico" data-borrar="${esc(p.id)}">Eliminar</button>`;
                 return `
@@ -1462,7 +1488,7 @@
                             if (!r.ok) throw new Error('No pude leer una de las fotos. Intenta de nuevo.');
                             imgs.push(await aDataUrl(await r.blob()));
                         }
-                        productosCopia.push({ id: p.id, nombre: p.nombre, desc: p.desc || '', precio: p.precio || '', cat: p.cat, creado: p.creado || 0, imgs });
+                        productosCopia.push({ id: p.id, nombre: p.nombre, precio: p.precio || '', cat: p.cat, creado: p.creado || 0, imgs });
                     }
                     const copia = {
                         tipo: 'copia-catalogo', version: 1, fecha: new Date().toISOString(),
@@ -1480,6 +1506,41 @@
                     aviso(err.message || 'No se pudo hacer la copia.', true);
                 } finally { A('btnCopia').disabled = false; }
             });
+            /* ----- respaldo automático en GitHub ----- */
+            const fechaCorta = (iso) => { const d = new Date(iso); return isNaN(d) ? '' : d.toLocaleString('es-VE', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }); };
+            async function estadoGit() {
+                const el = A('estadoGit');
+                try {
+                    const r = await api('/respaldo');
+                    if (!r.configurado) {
+                        el.textContent = 'Todavía no está activado (falta configurarlo en Netlify). Mientras tanto usa “Descargar copia”.';
+                        A('btnGit').hidden = true; return;
+                    }
+                    A('btnGit').hidden = false;
+                    const e = r.estado;
+                    el.textContent = !e ? `Activado en ${r.repo}. Se hará con el próximo cambio, o toca “Respaldar ahora”.`
+                        : e.ok ? `Último respaldo: ${fechaCorta(e.fecha)} ✓` + (e.pendientes ? ` (faltan ${e.pendientes} fotos, toca “Respaldar ahora”)` : '')
+                        : `El último intento falló (${fechaCorta(e.fecha)}): ${e.error}`;
+                } catch (err) { if (err.status === 401) salir(); }
+            }
+            window.adminEstadoGit = estadoGit;
+            A('btnGit').addEventListener('click', async () => {
+                A('btnGit').disabled = true;
+                try {
+                    let r, total = 0;
+                    do {
+                        A('estadoGit').textContent = 'Respaldando…' + (total ? ` ${total} fotos` : '');
+                        r = await api('/respaldo', { method: 'POST', body: '{}' });
+                        if (!r.ok) throw new Error(r.error || 'No se pudo respaldar.');
+                        total += r.subidas || 0;
+                    } while (r.pendientes > 0);
+                    aviso('Respaldo en GitHub listo ✓');
+                } catch (err) {
+                    if (err.status === 401) { salir(); return; }
+                    aviso(err.message, true);
+                } finally { A('btnGit').disabled = false; estadoGit(); }
+            });
+
             A('btnRestaurar').addEventListener('click', () => A('archivoCopia').click());
             A('archivoCopia').addEventListener('change', async (e) => {
                 const f = e.target.files[0];
@@ -1501,7 +1562,7 @@
                         est.textContent = `Restaurando… ${++i} de ${ordenados.length}`;
                         const clave = String(p.nombre || '').trim().toLowerCase();
                         if (nombres.has(clave)) { mapa[p.id] = nombres.get(clave); continue; }
-                        const r = await api('/productos', { method: 'POST', body: JSON.stringify({ nombre: p.nombre, desc: p.desc, precio: p.precio, cat: p.cat, nuevas: p.imgs }) });
+                        const r = await api('/productos', { method: 'POST', body: JSON.stringify({ nombre: p.nombre, precio: p.precio, cat: p.cat, nuevas: p.imgs }) });
                         mapa[p.id] = r.id; nombres.set(clave, r.id); nuevos++;
                     }
                     const aj = copia.ajustes || {};
@@ -1530,7 +1591,7 @@
                 const bo = e.target.closest('[data-borrar]');
                 const ag = e.target.closest('[data-agotado]');
                 const rs = e.target.closest('[data-restaurar]');
-                const pr = e.target.closest('[data-precio]');
+                const ef = e.target.closest('[data-editar-fijo]');
                 const intentar = async (btn, fn, ok) => {
                     btn.disabled = true;
                     try { await fn(); aviso(ok); }
@@ -1539,9 +1600,9 @@
                 if (ed) {
                     const p = lista.find((x) => x.id === ed.dataset.editar);
                     if (!p) return;
+                    limpiarForm();
                     editandoId = p.id;
                     A('nombre').value = p.nombre;
-                    A('desc').value = p.desc || '';
                     A('precio').value = p.precio || '';
                     A('cat').value = p.cat;
                     fotosAdm = p.imgs.map((url) => ({ url }));
@@ -1561,13 +1622,21 @@
                     const id = rs.dataset.restaurar;
                     intentar(rs, () => guardarAjustes({ ocultos: ajustes.ocultos.filter((x) => x !== id) }), 'El producto volvió al catálogo ✓');
                 }
-                if (pr) {
-                    const p = porId[pr.dataset.precio];
-                    const v = prompt(`Precio en euros (€) de “${p.nombre}”.\nDéjalo vacío para que diga “Consultar precio”.`, String(precioDe(p)).replace(/^€/, ''));
-                    if (v === null) return;
-                    const precios = { ...ajustes.precios };
-                    if (v.trim()) precios[p.id] = v.trim(); else delete precios[p.id];
-                    intentar(pr, () => guardarAjustes({ precios }), 'Precio guardado ✓');
+                if (ef) {
+                    const p = porId[ef.dataset.editarFijo];
+                    if (!p) return;
+                    limpiarForm();
+                    editandoFijo = p.id;
+                    A('nombre').value = p.nombre;
+                    A('nombre').readOnly = true;
+                    A('precio').value = String(precioDe(p)).replace(/^€/, '');
+                    A('completos').hidden = true;
+                    A('tituloForm').textContent = 'Editar precio';
+                    A('subForm').textContent = 'Cambia el precio en euros (€). Los bolívares se calculan solos con la tasa del día.';
+                    A('btnGuardar').textContent = 'Guardar precio';
+                    A('btnCancelar').hidden = false;
+                    A('formProducto').scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    setTimeout(() => A('precio').focus(), 400);
                 }
                 if (bo) {
                     const p = porId[bo.dataset.borrar];

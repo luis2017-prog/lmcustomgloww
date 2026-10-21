@@ -1,36 +1,107 @@
-CATÁLOGO LM CUSTOM GLOW - CÓMO PUBLICARLO (con panel para agregar productos)
-==========================================================================
+BASE DEL CATÁLOGO WEB  (versión LM Custom Glow – octubre 2026)
+================================================================
 
-QUÉ HAY EN ESTA CARPETA
-- public/                    -> la página (catálogo, admin.html, imágenes, videos)
-- netlify/functions/         -> el "motor" que guarda productos y fotos
-- netlify.toml, package.json -> configuración para Netlify
+QUÉ ES
+Catálogo de productos con carrito (el pedido se envía por WhatsApp), precios en euros
+con conversión automática a bolívares (tasa del BCV), y un panel de administrador
+(ícono de la personita, arriba a la derecha) para que el dueño agregue, cambie, marque
+como agotado o elimine productos sin tocar código.
 
-PASOS (se hacen una sola vez)
-1) Crea una cuenta gratis en github.com y un repositorio nuevo (botón "New").
-   Ponle un nombre, por ejemplo: catalogo.
-2) En el repositorio: "uploading an existing file". Arrastra TODO el contenido de
-   esta carpeta (las carpetas public y netlify, y los archivos netlify.toml y
-   package.json) y toca "Commit changes".
-3) En Netlify: "Add new project" -> "Import an existing project" -> GitHub ->
-   elige tu repositorio -> "Deploy". (Esto crea una página nueva con otra dirección.)
-4) En ese proyecto de Netlify: Project configuration -> Environment variables ->
-   "Add a variable":
-       Nombre: ADMIN_PASSWORD
-       Valor:  la contraseña que quieras (larga, que no sea fácil de adivinar)
-   Luego ve a Deploys -> "Trigger deploy" para que la tome.
-5) Entra a  https://TU-PAGINA.netlify.app/admin.html , escribe la contraseña y listo.
-   Guarda esa dirección en favoritos o en la pantalla de inicio del celular.
-6) Si sale la insignia "Powered by Netlify": Project configuration -> General ->
-   "Powered by Netlify badge" -> apágala.
+ARCHIVOS  (todo va en la RAÍZ del repositorio, sin carpeta envolvente)
+  index.html                  ← toda la página (diseño, textos, productos fijos y panel admin)
+  admin.html                  ← solo redirige a /#admin (se puede dejar tal cual)
+  imagenes/  videos/          ← fotos, logos y videos
+  netlify/functions/catalogo.mjs  ← el "servidor": guarda productos, fotos, agotados y tasa
+  package.json                ← le dice a Netlify que instale @netlify/blobs
+  .gitignore
+NO crear netlify.toml: la configuración se hace en el panel de Netlify (abajo).
 
-USO DIARIO (el cliente)
-- Entra a /admin.html, llena título, descripción, precio, categoría y fotos (hasta 4).
-- Toca "Publicar". Aparece en el catálogo al instante, sin tocar nada más.
-- Para cambiar un precio, foto o texto: "Editar". Para quitarlo: "Eliminar".
+────────────────────────────────────────────────────────
+A) PUBLICAR PARA UN CLIENTE NUEVO (paso a paso)
+────────────────────────────────────────────────────────
+1. Crear cuenta de GitHub para el proyecto (o usar la tuya) y un repositorio NUEVO
+   por cada cliente (ej: catalogo-nombrecliente).
+2. Add file → Upload files: arrastrar EL CONTENIDO de esta carpeta (no la carpeta).
+   Commit changes.
+3. En Netlify: Add new project → Import an existing project → GitHub → elegir el repo.
+4. En la configuración del proyecto (Project configuration → Build & deploy):
+     - Build command: (vacío)
+     - Publish directory: (vacío = raíz)
+     - Functions directory: netlify/functions
+5. Environment variables (Project configuration → Environment variables):
+     - ADMIN_PASSWORD  = la contraseña del dueño (larga; marcar "Contains secret values")
+     - NODE_VERSION    = 22
+6. Deploys → Trigger deploy → Deploy project (o esperar el automático).
+7. Comprobar: abrir  tudireccion.netlify.app/api/productos  → debe mostrar  []
+   y  tudireccion.netlify.app/api/tasa  → debe mostrar la tasa del euro.
+8. Entrar con la personita, escribir la contraseña y publicar un producto de prueba.
+   (Para quitar la insignia "Powered by Netlify": Project configuration → Collaboration → Project badge.)
+9. Cada vez que cambies un archivo en GitHub, Netlify se republica solo.
 
-NOTAS
-- Las fotos se reducen solas antes de subirlas (más rápido y sin gastar de más).
-- Los 9 productos que ya venían en el catálogo están escritos en public/index.html;
-  el panel solo maneja los que se agregan desde ahí.
-- Para cambiar la contraseña: cambia ADMIN_PASSWORD en Netlify y vuelve a publicar.
+Los productos que agrega el dueño desde el panel NO están en estos archivos: viven en
+Netlify (Blobs) de ese proyecto. Cada cliente/proyecto empieza vacío.
+
+────────────────────────────────────────────────────────
+B) QUÉ CAMBIAR PARA OTRO CLIENTE (buscar en index.html con Ctrl+F)
+────────────────────────────────────────────────────────
+COLORES Y TIPOGRAFÍA  →  buscar  :root   (arriba, dentro de <style>)
+    --dorado, --dorado-claro   color principal / de acento
+    --oscuro, --carbon         fondos oscuros (cabecera, panel admin)
+    --plata, --blanco          textos
+    --serif, --sans            tipos de letra (también el <link> de Google Fonts, línea ~11)
+FONDO DEL CATÁLOGO  →  buscar  fondo.jpg  (y reemplazar imagenes/fondo.jpg)
+LOGO  →  reemplazar imagenes/logo-custom-glow.jpg y logo-lm.jpg (mismo nombre) o cambiar la ruta
+         buscar  hero-logo
+NOMBRE DE LA MARCA  →  buscar  LM Custom Glow  (cabecera, título, pie, mensajes) y
+         <title> / <meta name="description"> al inicio
+WHATSAPP  →  buscar  584125000498  (varios lugares: const miTelefono, botón flotante, pie, contacto)
+         Formato: código de país + número, sin + ni espacios.
+INSTAGRAM / TIKTOK  →  buscar  instagram.com  y  tiktok.com  (pie de página y ventana de Contacto)
+CIUDAD / TEXTOS DE ENVÍOS  →  buscar  Valencia, Venezuela  y  Envíos
+TEXTOS DE LA PORTADA  →  buscar  Piezas únicas en acero inoxidable
+CATEGORÍAS  →  están en 4 lugares que deben coincidir:
+    1) botones de filtro: buscar  data-cat=
+    2) lista GRUPOS en el JavaScript: buscar  const GRUPOS
+    3) opciones del formulario del panel: buscar  id="adm-cat"   y   const CATS
+    4) lista permitida del servidor: netlify/functions/catalogo.mjs → const CATEGORIAS
+       (usar las mismas claves en minúsculas, sin tildes ni espacios)
+SECCIÓN "HECHO A TU MEDIDA" (video del láser)  →  buscar  id="personalizado"  (puedes borrar la sección completa)
+PRODUCTOS FIJOS (los que vienen "de fábrica")  →  buscar  const productos = [
+    Cada uno: id, cat (lista de categorías), nombre, imgs (fotos), precio, tag, y opcional video/poster.
+    (Las descripciones ya no se usan: ni se muestran ni se piden en el panel.)
+    Para una plantilla en blanco: dejar el arreglo vacío  const productos = [ ];  y que el dueño
+    cargue todo desde el panel.
+MONEDA  →  el precio se escribe en euros (€) y se convierte a Bs con la tasa del BCV.
+    Para otra moneda/país: buscar  precioHTML  y  pintarTasa  (JavaScript) y  URL_TASA en catalogo.mjs.
+
+────────────────────────────────────────────────────────
+C) COSAS A REVISAR ANTES DE ENTREGAR A UN CLIENTE
+────────────────────────────────────────────────────────
+- Cambiar TODAS las fotos, logos y videos de LM Custom Glow (el video laser-grabando.mp4
+  muestra una tarjeta/teléfono de otra marca: reemplazarlo o quitarlo).
+- Cambiar el número de WhatsApp, Instagram y TikTok.
+- Usar una contraseña ADMIN_PASSWORD distinta y larga para cada cliente.
+- Probar en el celular: entrar a la personita, publicar un producto y marcarlo agotado.
+
+RESPALDO AUTOMÁTICO EN GITHUB (opcional, recomendado)
+Cada vez que el dueño publica, edita o borra algo en el panel, el servidor copia las fotos nuevas y el
+listado de productos al repositorio, en la carpeta  respaldo/  (respaldo/fotos/... y respaldo/productos.json),
+en un solo commit con la marca [skip netlify] para que no republique la página por gusto.
+Para activarlo (una sola vez por proyecto):
+  1. GitHub → Settings (tu perfil) → Developer settings → Personal access tokens → Fine-grained tokens →
+     Generate new token. Repository access: solo el repositorio del cliente.
+     Permissions → Repository permissions → Contents: Read and write.  Copiar el token.
+  2. Netlify → Project configuration → Environment variables, agregar:
+       GITHUB_TOKEN  = el token (marcar "Contains secret values")
+       GITHUB_REPO   = usuario/repositorio   (ej: bricenobeasley/catalogo-lm)
+       GITHUB_BRANCH = main   (solo si tu rama principal se llama distinto)
+  3. Deploys → Trigger deploy. En el panel, sección "Copia de seguridad" → "Respaldar ahora" sube también
+     las fotos que ya existían antes de activarlo.
+Si no se configura, todo sigue funcionando igual (solo falta el respaldo automático).
+
+COPIA DE SEGURIDAD MANUAL: en el panel, al final, "Descargar copia" guarda un archivo .json con todos los productos y sus fotos;
+"Restaurar copia" lo vuelve a cargar (no duplica los que ya existan). Recomienda al cliente descargarla de vez en cuando,
+y úsala tú antes de hacer cambios grandes o si un proyecto se recrea.
+
+LÍMITES DEL PANEL: hasta 150 productos, 4 fotos por producto (se reducen solas a ~1100 px).
+Netlify gratis es suficiente para este uso.
