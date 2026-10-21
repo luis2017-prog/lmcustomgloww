@@ -85,6 +85,28 @@
         "video": ""
       }
     },
+    "categorias": [
+      {
+        "id": "parejas",
+        "nombre": "Parejas"
+      },
+      {
+        "id": "caballero",
+        "nombre": "Caballero"
+      },
+      {
+        "id": "llaveros",
+        "nombre": "Llaveros"
+      },
+      {
+        "id": "collares",
+        "nombre": "Collares & Sets"
+      },
+      {
+        "id": "anilloa",
+        "nombre": "Anilloa"
+      }
+    ],
     "tasaModo": "auto",
     "tasaManual": null,
     "tasaManualFecha": null
