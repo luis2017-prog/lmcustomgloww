@@ -124,6 +124,10 @@
       {
         "id": "collares",
         "nombre": "Collares & Sets"
+      },
+      {
+        "id": "collares2",
+        "nombre": "Collares"
       }
     ],
     "tasaModo": "auto",
