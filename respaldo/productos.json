@@ -2,6 +2,18 @@
   "aviso": "Copia automática hecha desde el panel de administrador. No la edites a mano: se reescribe en cada cambio.",
   "productos": [
     {
+      "id": "nmvisebdac35d03",
+      "nombre": "Collar de librito",
+      "precio": "25",
+      "cat": "collares",
+      "imgs": [
+        "respaldo/fotos/f2e942c446f7d027b455bd84.jpg",
+        "respaldo/fotos/180ba429d1040ae97cad08d4.jpg",
+        "respaldo/fotos/3436f56f69652804ff2c2410.jpg"
+      ],
+      "creado": 1792627950862
+    },
+    {
       "id": "nmvijedqlbf1746",
       "nombre": "Dijes",
       "precio": "",
