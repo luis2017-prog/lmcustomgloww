@@ -83,6 +83,15 @@
           "imagenes/pulsera-caballero.jpg"
         ],
         "video": ""
+      },
+      "p7": {
+        "nombre": "Collar Corazón Partido Plateado",
+        "imgs": [
+          "imagenes/collar-corazon-partido.jpg",
+          "respaldo/fotos/5f92bd606d2ed91e53199260.jpg",
+          "respaldo/fotos/3f0ff9a83f704faee0577f0b.jpg"
+        ],
+        "video": ""
       }
     },
     "categorias": [
