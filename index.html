@@ -1129,11 +1129,42 @@
             });
         }
 
+        /* ---------- Botón "atrás" del teléfono: cierra la ventana abierta en vez de salir de la página ---------- */
+        const ventanasAbiertas = [];   // ventanas abiertas con su entrada en el historial (la última es la de arriba)
+        const cierres = {};            // nombre → función que la cierra
+        let atrasPendiente = 0, colaAbrir = [], temporizadorAtras = null;
+        function vaciarCola() {
+            atrasPendiente = 0; clearTimeout(temporizadorAtras);
+            const q = colaAbrir; colaAbrir = []; q.forEach(historiaAbrir);
+        }
+        function historiaAbrir(nombre) {
+            if (ventanasAbiertas.includes(nombre)) return;
+            if (atrasPendiente) { if (!colaAbrir.includes(nombre)) colaAbrir.push(nombre); return; }
+            ventanasAbiertas.push(nombre);
+            try { history.pushState({ lm: nombre }, ''); } catch (e) { ventanasAbiertas.pop(); }
+        }
+        function historiaCerrar(nombre) {   // la ventana se cerró con la X, Esc o tocando fuera: se gasta su entrada del historial
+            colaAbrir = colaAbrir.filter((n) => n !== nombre);
+            const i = ventanasAbiertas.lastIndexOf(nombre);
+            if (i < 0) return;
+            ventanasAbiertas.splice(i, 1);
+            atrasPendiente++;
+            clearTimeout(temporizadorAtras);
+            temporizadorAtras = setTimeout(vaciarCola, 800);   // por si el navegador no avisa
+            history.back();
+        }
+        window.addEventListener('popstate', () => {
+            if (atrasPendiente > 0) { atrasPendiente--; if (!atrasPendiente) vaciarCola(); return; }
+            const nombre = ventanasAbiertas.pop();   // el usuario tocó "atrás": se cierra la ventana de arriba y se queda en la tienda
+            if (nombre && cierres[nombre]) cierres[nombre]();
+        });
+
         function mostrarFavoritos() {
             const lista = document.getElementById('listaFavoritos');
             const vacio = document.getElementById('msgVacio');
             const btn = document.getElementById('btnEnviarTodo');
             document.getElementById('modalFavoritos').classList.add('abierto');
+            historiaAbrir('carrito');
             if (wishlist.length === 0) {
                 lista.innerHTML = '';
                 vacio.style.display = 'block';
@@ -1161,9 +1192,9 @@
         }
 
         /* ---------- MODALES ---------- */
-        function abrirContacto() { document.getElementById('modalContacto').classList.add('abierto'); }
-        function cerrarContacto() { document.getElementById('modalContacto').classList.remove('abierto'); }
-        function cerrarModal() { document.getElementById('modalFavoritos').classList.remove('abierto'); }
+        function abrirContacto() { document.getElementById('modalContacto').classList.add('abierto'); historiaAbrir('contacto'); }
+        function cerrarContacto() { document.getElementById('modalContacto').classList.remove('abierto'); historiaCerrar('contacto'); }
+        function cerrarModal() { document.getElementById('modalFavoritos').classList.remove('abierto'); historiaCerrar('carrito'); }
         let galN = 0;
         function abrirGaleria(id, inicio = 0) {
             const p = porId[id];
@@ -1177,6 +1208,7 @@
             const ov = document.getElementById('overlay');
             ov.classList.toggle('una', imgs.length < 2);
             ov.classList.add('abierto');
+            historiaAbrir('galeria');
             const sl = document.getElementById('galSlides');
             sl.style.scrollBehavior = 'auto';
             sl.scrollLeft = inicio * sl.clientWidth;
@@ -1211,7 +1243,7 @@
             if (e.key === 'ArrowLeft') galIr(galActual() - 1);
             if (e.key === 'ArrowRight') galIr(galActual() + 1);
         });
-        function cerrarImagen() { document.getElementById('overlay').classList.remove('abierto'); }
+        function cerrarImagen() { document.getElementById('overlay').classList.remove('abierto'); historiaCerrar('galeria'); }
         function abrirVideo(id) {
             const p = porId[id];
             const v = document.getElementById('videoProducto');
@@ -1219,13 +1251,16 @@
             v.src = p.video;
             document.getElementById('tituloVideo').textContent = p.nombre;
             document.getElementById('modalVideo').classList.add('abierto');
+            historiaAbrir('video');
             v.play().catch(() => {});
         }
         function cerrarVideo() {
             const v = document.getElementById('videoProducto');
             v.pause(); v.removeAttribute('src'); v.load();
             document.getElementById('modalVideo').classList.remove('abierto');
+            historiaCerrar('video');
         }
+        Object.assign(cierres, { carrito: cerrarModal, contacto: cerrarContacto, galeria: cerrarImagen, video: cerrarVideo });
 
         window.addEventListener('click', e => {
             if (e.target.id === 'modalFavoritos') cerrarModal();
@@ -1353,13 +1388,15 @@
             }
             function abrir() {
                 ov.hidden = false;
+                historiaAbrir('admin');
                 document.body.style.overflow = 'hidden';
                 ov.scrollTop = 0;
                 if (clave) {
                     api('/login', { method: 'POST', body: '{}' }).then(mostrarPanel).catch(() => { clave = ''; mostrarLogin(); });
                 } else { mostrarLogin(); }
             }
-            function cerrar() { ov.hidden = true; document.body.style.overflow = ''; }
+            function cerrar() { ov.hidden = true; document.body.style.overflow = ''; historiaCerrar('admin'); }
+            cierres.admin = cerrar;
             window.abrirAdmin = abrir;
             window.cerrarAdmin = cerrar;
             A('cerrar').addEventListener('click', cerrar);
