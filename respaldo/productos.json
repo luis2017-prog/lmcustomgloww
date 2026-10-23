@@ -2,6 +2,16 @@
   "aviso": "Copia automática hecha desde el panel de administrador. No la edites a mano: se reescribe en cada cambio.",
   "productos": [
     {
+      "id": "nmvkf8rbv5bda42",
+      "nombre": "Dijes para Perritos",
+      "precio": "",
+      "cat": "mascotas",
+      "imgs": [
+        "respaldo/fotos/c8586a0c8e77fbde843e2f23.jpg"
+      ],
+      "creado": 1792726788955
+    },
+    {
       "id": "nmvisebdac35d03",
       "nombre": "Collar de librito",
       "precio": "25",
