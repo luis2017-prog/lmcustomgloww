@@ -132,6 +132,10 @@
       {
         "id": "anillos",
         "nombre": "Anillos"
+      },
+      {
+        "id": "mascotas",
+        "nombre": "Mascotas"
       }
     ],
     "tasaModo": "auto",
